@@ -2,134 +2,425 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Egg Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Antvarum · Egg Tracker</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, 'Segoe UI', sans-serif; margin: 0; padding: 16px; background: #f5f7fa; color: #1a1a1a; }
-  .container { max-width: 760px; margin: 0 auto; }
-  h1 { font-size: 22px; margin: 0 0 4px; }
-  h2 { font-size: 15px; margin: 0 0 12px; color: #333; text-transform: uppercase; letter-spacing: .5px; }
-  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
-  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-  .stat { background: #eef4ff; border-radius: 8px; padding: 12px; text-align: center; }
-  .stat .val { font-size: 22px; font-weight: 700; color: #2563eb; }
-  .stat .lbl { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: .5px; }
-  input, button, select { font-family: inherit; font-size: 14px; }
-  input[type=text], input[type=number], input[type=date], select {
-    padding: 9px 11px; border: 1px solid #d0d7de; border-radius: 6px; width: 100%; background: #fff;
+  :root {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-2: #334155;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-dim: #94a3b8;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --accent: #8b5cf6;
+    --radius: 14px;
+    --shadow: 0 4px 20px rgba(0,0,0,.25);
   }
-  button { padding: 9px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
-  .btn-primary { background: #2563eb; color: #fff; }
-  .btn-primary:hover { background: #1d4ed8; }
-  .btn-secondary { background: #e5e7eb; color: #333; }
-  .btn-danger { background: #ef4444; color: #fff; padding: 6px 10px; font-size: 12px; }
-  .btn-sm { padding: 6px 10px; font-size: 12px; }
-  .row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-  .row input { flex: 1; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .app { max-width: 1100px; margin: 0 auto; padding: 20px 16px 100px; }
+
+  /* Header */
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; box-shadow: 0 4px 12px rgba(245,158,11,.3);
+  }
+  .brand-text h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
+  .brand-text p { margin: 2px 0 0; font-size: 12px; color: var(--text-dim); }
+  .user-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); padding: 8px 14px; border-radius: 100px;
+    font-size: 12px; color: var(--text-dim); border: 1px solid var(--border);
+  }
+  .user-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 24px;
+    background: var(--surface); padding: 4px; border-radius: 12px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1; min-width: 90px; padding: 10px 16px;
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 13px; font-weight: 600; border-radius: 8px;
+    cursor: pointer; transition: all .2s; white-space: nowrap;
+    font-family: inherit;
+  }
+  .tab.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(59,130,246,.3); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--text-dim); margin: 0 0 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .card-title .badge {
+    text-transform: none; letter-spacing: 0; font-size: 11px;
+    background: var(--surface-2); color: var(--text-dim);
+    padding: 3px 10px; border-radius: 100px; font-weight: 500;
+  }
+
+  /* Stat grid */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .stat {
+    background: var(--surface-2); border-radius: 12px; padding: 16px;
+    position: relative; overflow: hidden;
+  }
+  .stat::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--primary);
+  }
+  .stat.success::before { background: var(--success); }
+  .stat.warning::before { background: var(--warning); }
+  .stat.accent::before { background: var(--accent); }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-dim); margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 700; letter-spacing: -.5px; line-height: 1.1; }
+  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  /* Progress */
+  .progress-wrap { margin-top: 16px; }
+  .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+  .progress { height: 10px; background: var(--surface-2); border-radius: 100px; overflow: hidden; }
+  .progress-bar {
+    height: 100%; background: linear-gradient(90deg, var(--primary), var(--success));
+    transition: width .4s ease; border-radius: 100px;
+  }
+
+  /* Buttons */
+  button {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    padding: 10px 18px; border: none; border-radius: 10px;
+    cursor: pointer; transition: all .15s; letter-spacing: -.1px;
+  }
+  button:active { transform: scale(.97); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-ghost { background: var(--surface-2); color: var(--text); }
+  .btn-ghost:hover { background: var(--border); }
+  .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
+  .btn-block { width: 100%; }
+
+  /* Forms */
+  input, select {
+    font-family: inherit; font-size: 14px; width: 100%;
+    padding: 11px 14px; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--bg); color: var(--text);
+    transition: border-color .15s;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--primary); }
+  input::placeholder { color: var(--text-dim); }
+  .form-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .form-row input, .form-row select { flex: 1; min-width: 120px; }
+  .form-row .btn-sm { flex-shrink: 0; }
+
+  /* Tables */
   table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 11px 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
-  th { background: #f9fafb; font-weight: 600; font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: .3px; }
-  .amount { font-weight: 700; color: #059669; }
-  .progress { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin: 12px 0; }
-  .progress-bar { height: 100%; background: linear-gradient(90deg, #2563eb, #10b981); transition: width .3s; }
+  th, td { padding: 12px 10px; text-align: left; font-size: 13px; }
+  th {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .5px;
+    color: var(--text-dim); font-weight: 600; border-bottom: 1px solid var(--border);
+  }
+  td { border-bottom: 1px solid var(--surface-2); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(59,130,246,.04); }
+  .amount { font-weight: 700; color: var(--success); font-variant-numeric: tabular-nums; }
+  .num { font-variant-numeric: tabular-nums; }
+  .rank { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center;
+    background: var(--surface-2); border-radius: 50%; font-size: 11px; font-weight: 700; color: var(--text-dim); margin-right: 8px; }
+  .rank.gold { background: #f59e0b; color: #fff; }
+  .rank.silver { background: #94a3b8; color: #fff; }
+  .rank.bronze { background: #b45309; color: #fff; }
+
+  /* Entry rows */
+  .entry-list { display: flex; flex-direction: column; gap: 4px; }
+  .entry-row {
+    display: grid; grid-template-columns: 1fr 90px; gap: 10px; align-items: center;
+    padding: 8px 12px; background: var(--bg); border-radius: 10px;
+  }
+  .entry-row label { font-size: 14px; font-weight: 500; }
+  .entry-row input { padding: 8px 10px; text-align: center; font-weight: 600; }
+
+  /* Report box */
+  .report-box {
+    background: rgba(16,185,129,.08);
+    border: 1px solid rgba(16,185,129,.3);
+    border-radius: 12px; padding: 16px; margin-top: 12px;
+  }
+  .rep-line { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; border-bottom: 1px dashed rgba(16,185,129,.15); }
+  .rep-line:last-of-type { border-bottom: none; }
+  .rep-line.total { font-weight: 700; border-top: 2px solid rgba(16,185,129,.4); margin-top: 6px; padding-top: 12px; border-bottom: none; font-size: 14px; }
+
+  /* History cards */
+  .carton-card {
+    background: var(--surface-2); border-radius: 12px; padding: 16px;
+    margin-bottom: 10px; border-left: 4px solid var(--primary);
+    cursor: pointer; transition: all .15s;
+  }
+  .carton-card:hover { transform: translateX(2px); }
+  .carton-card.active { border-left-color: var(--warning); }
+  .carton-card.closed { border-left-color: var(--success); }
+  .carton-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .carton-title { font-size: 14px; font-weight: 700; }
+  .carton-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .carton-amount { font-size: 15px; font-weight: 700; color: var(--success); }
+  .carton-body { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: none; }
+  .carton-body.open { display: block; }
+
+  /* Person card */
+  .person-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .person-card {
+    background: var(--surface-2); border-radius: 12px; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .person-card .name { font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+  .person-card .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; }
+  .person-card .metric { background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+  .person-card .metric-label { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+  .person-card .metric-value { font-weight: 700; margin-top: 2px; font-size: 14px; }
+
+  /* Empty */
+  .empty { text-align: center; color: var(--text-dim); padding: 32px 20px; font-size: 13px; }
+
+  /* Login */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: radial-gradient(circle at 50% 0%, #1e293b, #0f172a);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+    padding: 20px;
+  }
+  .login-card {
+    text-align: center; padding: 48px 40px; background: var(--surface);
+    border-radius: 20px; box-shadow: var(--shadow); max-width: 400px; width: 100%;
+    border: 1px solid var(--border);
+  }
+  .login-card .logo {
+    width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 20px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    display: flex; align-items: center; justify-content: center; font-size: 40px;
+    box-shadow: 0 8px 24px rgba(245,158,11,.4);
+  }
+  .login-card h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.5px; }
+  .login-card p { margin: 0 0 28px; color: var(--text-dim); font-size: 14px; }
+
   .hidden { display: none !important; }
-  .login-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.96); display: flex; align-items: center; justify-content: center; z-index: 100; }
-  .login-card { text-align: center; padding: 40px; background: #fff; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.1); }
-  .history-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
-  .history-item .title { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
-  .history-item .meta { font-size: 12px; color: #666; }
-  .report-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 14px; margin-top: 10px; }
-  .report-box .rep-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
-  .report-box .rep-line.total { font-weight: 700; border-top: 1px solid #86efac; margin-top: 6px; padding-top: 10px; }
-  .empty { text-align: center; color: #999; padding: 16px; font-size: 13px; }
-  .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
-  .inline-edit { display: flex; gap: 6px; align-items: center; }
-  .inline-edit input { width: 100px; }
-  .tag { display: inline-block; background: #eef4ff; color: #2563eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 6px; }
-  .entry-grid { display: grid; gap: 8px; }
-  .entry-row { display: grid; grid-template-columns: 1fr 90px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
-  .entry-row label { font-size: 14px; }
-  .date-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-  .date-bar input { max-width: 180px; }
+  .loading { text-align: center; padding: 40px; color: var(--text-dim); font-size: 13px; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .app { padding: 16px 12px 80px; }
+    .brand-text h1 { font-size: 17px; }
+    .stat-value { font-size: 22px; }
+    th, td { padding: 10px 8px; font-size: 12px; }
+    .user-chip { display: none; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Login -->
+<!-- LOGIN -->
 <div id="loginOverlay" class="login-overlay">
   <div class="login-card">
-    <h1>🥚 Egg Tracker</h1>
-    <p class="sub">Admin sign-in (Google Drive sync)</p>
-    <button id="signInBtn" class="btn-primary" style="margin-top:10px;">Sign in with Google</button>
+    <div class="logo">🥚</div>
+    <h1>Antvarum</h1>
+    <p>Egg tracker &amp; split manager</p>
+    <button id="signInBtn" class="btn-primary btn-block">Sign in with Google</button>
   </div>
 </div>
 
-<div class="container hidden" id="appContent">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-    <div>
-      <h1>🥚 Egg Tracker</h1>
-      <div class="sub" id="userEmail"></div>
+<!-- APP -->
+<div class="app hidden" id="appContent">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">🥚</div>
+      <div class="brand-text">
+        <h1>Antvarum</h1>
+        <p id="userEmail">Loading…</p>
+      </div>
     </div>
-    <button class="btn-secondary btn-sm" onclick="signOut()">Sign Out</button>
+    <div class="user-chip">
+      <span class="user-dot"></span>
+      <span>Synced</span>
+      <button class="btn-ghost btn-sm" onclick="signOut()" style="margin-left:8px;">Sign out</button>
+    </div>
   </div>
 
-  <!-- Current Carton -->
-  <div class="card">
-    <div class="section-head">
-      <h2 style="margin:0;">Current Carton</h2>
-      <div class="inline-edit">
-        <label style="font-size:12px; color:#666;">Price ₹</label>
-        <input type="number" id="cartonPriceInput" step="0.01">
-        <button class="btn-primary btn-sm" onclick="updatePrice()">Save</button>
+  <div class="tabs">
+    <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+    <button class="tab" data-tab="entry">✍️ Daily Entry</button>
+    <button class="tab" data-tab="cartons">📦 Cartons</button>
+    <button class="tab" data-tab="people">👥 People</button>
+    <button class="tab" data-tab="reports">📈 Reports</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="tab-panel" id="tab-dashboard">
+    <div class="card">
+      <div class="card-title">
+        Current Carton
+        <span class="badge" id="cartonStatus">Active</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Eggs used</div>
+          <div class="stat-value" id="dashUsed">0</div>
+          <div class="stat-sub">of 30</div>
+        </div>
+        <div class="stat success">
+          <div class="stat-label">Remaining</div>
+          <div class="stat-value" id="dashLeft">30</div>
+          <div class="stat-sub">eggs left</div>
+        </div>
+        <div class="stat warning">
+          <div class="stat-label">Per egg</div>
+          <div class="stat-value" id="dashRate">₹0</div>
+          <div class="stat-sub" id="dashPrice">Carton ₹0</div>
+        </div>
+        <div class="stat accent">
+          <div class="stat-label">Amount used</div>
+          <div class="stat-value" id="dashAmount">₹0</div>
+          <div class="stat-sub">current carton</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-info">
+          <span id="progressLabel">0% used</span>
+          <span id="progressText">0 / 30</span>
+        </div>
+        <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
       </div>
     </div>
 
-    <div class="stats">
-      <div class="stat"><div class="val" id="statUsed">0</div><div class="lbl">Used</div></div>
-      <div class="stat"><div class="val" id="statLeft">30</div><div class="lbl">Left</div></div>
-      <div class="stat"><div class="val" id="statRate">₹0</div><div class="lbl">Per Egg</div></div>
+    <div class="card">
+      <div class="card-title">This Month <span class="badge" id="monthLabel"></span></div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Eggs</div>
+          <div class="stat-value" id="monthEggs">0</div>
+        </div>
+        <div class="stat success">
+          <div class="stat-label">Total spend</div>
+          <div class="stat-value" id="monthSpend">₹0</div>
+        </div>
+        <div class="stat accent">
+          <div class="stat-label">Cartons</div>
+          <div class="stat-value" id="monthCartons">0</div>
+        </div>
+        <div class="stat warning">
+          <div class="stat-label">People</div>
+          <div class="stat-value" id="monthPeople">0</div>
+        </div>
+      </div>
     </div>
 
-    <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-  </div>
-
-  <!-- Daily Entry -->
-  <div class="card">
-    <h2>Add Daily Entry</h2>
-    <div class="date-bar">
-      <input type="date" id="entryDate">
-      <button class="btn-primary btn-sm" onclick="loadDateForEdit()">Load Date</button>
-      <button class="btn-secondary btn-sm" onclick="clearEntryForm()">Clear</button>
-    </div>
-    <div id="entryList" class="entry-grid"></div>
-    <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
-      <button class="btn-primary" onclick="saveDailyEntry()">💾 Save Day</button>
-      <button class="btn-secondary" onclick="addNewPerson()">+ Add Person</button>
-    </div>
-    <div id="dailyTotals" class="sub" style="margin-top:10px;"></div>
-  </div>
-
-  <!-- Current Split -->
-  <div class="card">
-    <h2>Split for Current Carton</h2>
-    <table id="currentTable">
-      <thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div id="currentReport"></div>
-    <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
-      <button class="btn-primary btn-sm" onclick="showCurrentReport()">📋 Split Report</button>
-      <button class="btn-secondary btn-sm" onclick="closeCarton()">✓ Close Carton</button>
+    <div class="card">
+      <div class="card-title">Top Consumers <span class="badge">This month</span></div>
+      <div id="topConsumers"></div>
     </div>
   </div>
 
-  <!-- Past Cartons -->
-  <div class="card">
-    <h2>Past Cartons</h2>
-    <div id="historyList"></div>
+  <!-- DAILY ENTRY -->
+  <div class="tab-panel hidden" id="tab-entry">
+    <div class="card">
+      <div class="card-title">Add Daily Entry</div>
+      <div class="form-row">
+        <input type="date" id="entryDate">
+        <button class="btn-ghost btn-sm" onclick="loadDateForEdit()">Load</button>
+        <button class="btn-ghost btn-sm" onclick="clearEntryForm()">Clear</button>
+      </div>
+      <div class="entry-list" id="entryList"></div>
+      <div class="form-row" style="margin-top:14px;">
+        <button class="btn-primary btn-block" onclick="saveDailyEntry()">💾 Save Day</button>
+        <button class="btn-ghost" onclick="addNewPerson()">+ Person</button>
+      </div>
+      <div id="dailyTotals" style="margin-top:12px; color:var(--text-dim); font-size:12px; text-align:center;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Today's Entries <span class="badge" id="todayBadge"></span></div>
+      <div id="todayList"></div>
+    </div>
+  </div>
+
+  <!-- CARTONS -->
+  <div class="tab-panel hidden" id="tab-cartons">
+    <div class="card">
+      <div class="card-title">
+        Current Carton
+        <div style="display:flex; gap:6px;">
+          <button class="btn-ghost btn-sm" onclick="updatePrice()">Update Price</button>
+          <button class="btn-success btn-sm" onclick="closeCarton()">Close Carton</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label style="font-size:12px; color:var(--text-dim); white-space:nowrap;">Price ₹</label>
+        <input type="number" id="cartonPriceInput" step="0.01" style="max-width:140px;">
+        <span style="color:var(--text-dim); font-size:12px;">for 30 eggs</span>
+      </div>
+      <div id="currentCartonDetail"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Past Cartons <span class="badge" id="historyCount">0</span></div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- PEOPLE -->
+  <div class="tab-panel hidden" id="tab-people">
+    <div class="card">
+      <div class="card-title">
+        People
+        <button class="btn-primary btn-sm" onclick="addNewPerson()">+ Add Person</button>
+      </div>
+      <div class="person-grid" id="peopleGrid"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="tab-panel hidden" id="tab-reports">
+    <div class="card">
+      <div class="card-title">Month-wise Report</div>
+      <div class="form-row">
+        <select id="reportMonth" onchange="renderReports()"></select>
+      </div>
+      <div id="monthReport"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">All-time Leaderboard</div>
+      <div id="leaderboard"></div>
+    </div>
   </div>
 </div>
 
@@ -138,13 +429,10 @@ const CLIENT_ID = '1075127970047-ed7dgjkf04mqd0tu2lnokadrocfltd03.apps.googleuse
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 const FOLDER_NAME = 'EggTrackerApp';
 const DATA_FILE = 'egg_data.json';
+const CARTON_SIZE = 30;
 
 let accessToken = null, tokenClient = null;
-let appData = {
-  people: [],
-  currentCarton: null,
-  history: []
-};
+let appData = { people: [], currentCarton: null, history: [] };
 
 // ---------- INIT ----------
 window.onload = () => {
@@ -154,20 +442,20 @@ window.onload = () => {
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
         scope: SCOPES,
-        callback: async (r) => {
-          if (r?.access_token) {
-            accessToken = r.access_token;
-            await onSignIn();
-          }
-        }
+        callback: async (r) => { if (r?.access_token) { accessToken = r.access_token; await onSignIn(); } }
       });
       document.getElementById('signInBtn').onclick = () => tokenClient.requestAccessToken({ prompt: 'consent' });
     }
   }, 100);
-  // Default entry date = today
-  document.getElementById('entryDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('entryDate').value = today();
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
 };
 
+function today() { return new Date().toISOString().slice(0,10); }
+function monthKey(d) { return (d || today()).slice(0,7); }
+function fmt(n) { return '₹' + Number(n).toFixed(2); }
+
+// ---------- AUTH ----------
 async function onSignIn() {
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('appContent').classList.remove('hidden');
@@ -178,7 +466,7 @@ async function onSignIn() {
   await loadData();
   if (!appData.currentCarton) createNewCarton();
   if (appData.people.length === 0) {
-    appData.people = ['David', 'Prakash', 'Naveen', 'Guru', 'Harini', 'Logesh', 'Sathish', 'Gunesh', 'Yogi', 'Mari'];
+    appData.people = ['David','Prakash','Naveen','Guru','Harini','Logesh','Sathish','Gunesh','Yogi','Mari'];
     await saveData();
   }
   render();
@@ -205,14 +493,12 @@ async function getFolderId() {
   });
   return (await c.json()).id;
 }
-
 async function getFileId(folderId) {
   const q = `name='${DATA_FILE}' and '${folderId}' in parents and trashed=false`;
   const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${accessToken}` } });
   const d = await r.json();
   return d.files?.length ? d.files[0].id : null;
 }
-
 async function loadData() {
   try {
     const folderId = await getFolderId();
@@ -223,7 +509,6 @@ async function loadData() {
     }
   } catch(e) { console.error(e); }
 }
-
 async function saveData() {
   if (!accessToken) return;
   try {
@@ -241,30 +526,25 @@ async function saveData() {
   } catch(e) { console.error('save err', e); }
 }
 
-// ---------- CARTON LOGIC ----------
+// ---------- CARTON ----------
 function createNewCarton() {
   appData.currentCarton = {
     id: 'carton_' + Date.now(),
-    price: 195,
-    eggsTotal: 30,
-    eggsUsed: 0,
-    startDate: new Date().toISOString().slice(0,10),
-    consumption: {},        // total per person across carton
-    daily: {}               // { "2026-10-07": { "David": 2 } }
+    price: 195, eggsTotal: CARTON_SIZE, eggsUsed: 0,
+    startDate: today(),
+    consumption: {}, daily: {}
   };
   saveData();
 }
-
 function updatePrice() {
   const p = parseFloat(document.getElementById('cartonPriceInput').value);
   if (p > 0) { appData.currentCarton.price = p; saveData(); render(); }
 }
-
 function closeCarton() {
   const c = appData.currentCarton;
   if (c.eggsUsed === 0) return alert('No eggs used yet.');
-  if (!confirm(`Close this carton with ${c.eggsUsed}/30 eggs used?`)) return;
-  c.endDate = new Date().toISOString().slice(0,10);
+  if (!confirm(`Close carton with ${c.eggsUsed}/${CARTON_SIZE} used?`)) return;
+  c.endDate = today();
   appData.history.unshift(c);
   createNewCarton();
   render();
@@ -278,35 +558,28 @@ function buildEntryForm() {
     <div class="entry-row">
       <label>${p}</label>
       <input type="number" min="0" data-person="${p}" placeholder="0">
-    </div>
-  `).join('');
+    </div>`).join('');
   wrap.querySelectorAll('input').forEach(i => i.addEventListener('input', updateDailyTotals));
   updateDailyTotals();
 }
-
 function loadDateForEdit() {
   const date = document.getElementById('entryDate').value;
-  if (!date) return alert('Pick a date first.');
+  if (!date) return;
   const day = appData.currentCarton.daily?.[date] || {};
-  document.querySelectorAll('#entryList input').forEach(i => {
-    i.value = day[i.dataset.person] ?? '';
-  });
+  document.querySelectorAll('#entryList input').forEach(i => i.value = day[i.dataset.person] ?? '');
   updateDailyTotals();
 }
-
 function clearEntryForm() {
   document.querySelectorAll('#entryList input').forEach(i => i.value = '');
   updateDailyTotals();
 }
-
 function updateDailyTotals() {
   let sum = 0;
   document.querySelectorAll('#entryList input').forEach(i => sum += parseInt(i.value) || 0);
   const c = appData.currentCarton;
   document.getElementById('dailyTotals').textContent =
-    `This day: ${sum} eggs · Carton used: ${c.eggsUsed}/30 · Remaining: ${Math.max(0, 30 - c.eggsUsed)}`;
+    `This day: ${sum} eggs · Carton: ${c.eggsUsed}/${CARTON_SIZE} · Left: ${Math.max(0, CARTON_SIZE - c.eggsUsed)}`;
 }
-
 function saveDailyEntry() {
   const date = document.getElementById('entryDate').value;
   if (!date) return alert('Pick a date.');
@@ -316,20 +589,15 @@ function saveDailyEntry() {
   let dayTotal = 0;
   document.querySelectorAll('#entryList input').forEach(i => {
     const v = parseInt(i.value) || 0;
-    if (v > 0) { day[v > 0 ? i.dataset.person : ''] = v; day[i.dataset.person] = v; dayTotal += v; }
+    if (v > 0) { day[i.dataset.person] = v; dayTotal += v; }
   });
-  // Recompute carton totals from all daily entries
-  const oldDay = c.daily[date] || {};
-  const oldTotal = Object.values(oldDay).reduce((a,b) => a+b, 0);
+  const oldTotal = Object.values(c.daily[date] || {}).reduce((a,b) => a+b, 0);
   const newUsed = c.eggsUsed - oldTotal + dayTotal;
-  if (newUsed > 30) return alert(`That would exceed 30 eggs. Current used: ${c.eggsUsed}, this day would add ${dayTotal - oldTotal} more.`);
+  if (newUsed > CARTON_SIZE) return alert(`Would exceed ${CARTON_SIZE}. Currently used ${c.eggsUsed}, this change adds ${dayTotal - oldTotal}.`);
   c.daily[date] = day;
-  // Rebuild consumption from daily
   c.consumption = {};
   for (const d of Object.values(c.daily)) {
-    for (const [p, v] of Object.entries(d)) {
-      c.consumption[p] = (c.consumption[p] || 0) + v;
-    }
+    for (const [p, v] of Object.entries(d)) c.consumption[p] = (c.consumption[p] || 0) + v;
   }
   c.eggsUsed = Object.values(c.consumption).reduce((a,b) => a+b, 0);
   saveData();
@@ -337,103 +605,259 @@ function saveDailyEntry() {
   updateDailyTotals();
   alert(`Saved ${date}: ${dayTotal} eggs`);
 }
-
 function addNewPerson() {
   const name = prompt('Person name:');
   if (!name) return;
   if (appData.people.includes(name)) return alert('Already exists.');
   appData.people.push(name);
-  saveData();
-  render();
-  buildEntryForm();
+  saveData(); render(); buildEntryForm();
 }
 
-// ---------- REPORTS ----------
+// ---------- SPLIT ----------
 function generateSplit(carton) {
   const rate = carton.price / carton.eggsTotal;
-  const lines = [];
-  let total = 0;
-  for (const [name, eggs] of Object.entries(carton.consumption)) {
-    const amt = eggs * rate;
-    total += amt;
-    lines.push({ name, eggs, amount: amt });
-  }
+  const lines = Object.entries(carton.consumption).map(([name, eggs]) => ({ name, eggs, amount: eggs * rate }));
   lines.sort((a,b) => b.amount - a.amount);
+  const total = lines.reduce((s,l) => s + l.amount, 0);
   return { rate, lines, total };
 }
 
-function showCurrentReport() {
-  const el = document.getElementById('currentReport');
-  if (el.dataset.open === '1') { el.innerHTML = ''; el.dataset.open = '0'; return; }
-  el.dataset.open = '1';
-  const { rate, lines, total } = generateSplit(appData.currentCarton);
-  if (!lines.length) { el.innerHTML = '<div class="empty">No eggs logged yet.</div>'; return; }
-  el.innerHTML = renderReport(lines, rate, total, appData.currentCarton);
-}
-
-function renderReport(lines, rate, total, carton) {
-  let html = `<div class="report-box">`;
-  html += `<div style="font-size:12px; color:#166534; margin-bottom:8px;">Per egg: ₹${rate.toFixed(2)} | Carton: ₹${carton.price} | ${carton.startDate}${carton.endDate ? ' → ' + carton.endDate : ''}</div>`;
-  for (const l of lines) {
-    html += `<div class="rep-line"><span>${l.name} — ${l.eggs} eggs</span><span class="amount">₹${l.amount.toFixed(2)}</span></div>`;
-  }
-  html += `<div class="rep-line total"><span>Total</span><span>₹${total.toFixed(2)}</span></div>`;
-  const text = `Egg Split (${carton.startDate}${carton.endDate ? ' to ' + carton.endDate : ''})\n` +
-    lines.map(l => `${l.name}: ${l.eggs} eggs = ₹${l.amount.toFixed(2)}`).join('\n') +
-    `\nTotal: ₹${total.toFixed(2)}`;
-  html += `<button class="btn-primary btn-sm" style="margin-top:10px;" onclick="copyText(${JSON.stringify(text)})">📋 Copy for GPay</button>`;
-  html += `</div>`;
-  return html;
-}
-
-function copyText(t) {
-  navigator.clipboard.writeText(t).then(() => alert('Copied! Paste into GPay/split notes.'));
+// ---------- MONTHLY AGGREGATION ----------
+function monthlyStats() {
+  const months = {};
+  const addCarton = (carton) => {
+    for (const [date, day] of Object.entries(carton.daily || {})) {
+      const m = monthKey(date);
+      if (!months[m]) months[m] = { eggs: 0, spend: 0, cartons: new Set(), people: new Set(), byPerson: {} };
+      for (const [p, eggs] of Object.entries(day)) {
+        const rate = carton.price / carton.eggsTotal;
+        months[m].eggs += eggs;
+        months[m].spend += eggs * rate;
+        months[m].cartons.add(carton.id);
+        months[m].people.add(p);
+        months[m].byPerson[p] = (months[m].byPerson[p] || 0) + eggs;
+      }
+    }
+  };
+  if (appData.currentCarton) addCarton(appData.currentCarton);
+  appData.history.forEach(addCarton);
+  return months;
 }
 
 // ---------- RENDER ----------
 function render() {
+  renderDashboard();
+  renderCartonTab();
+  renderPeopleTab();
+  renderReports();
+  renderTodayList();
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + name));
+}
+
+function renderDashboard() {
   const c = appData.currentCarton;
-  document.getElementById('cartonPriceInput').value = c.price;
-  document.getElementById('statUsed').textContent = c.eggsUsed;
-  document.getElementById('statLeft').textContent = Math.max(0, 30 - c.eggsUsed);
-  document.getElementById('statRate').textContent = '₹' + (c.price / 30).toFixed(2);
-  document.getElementById('progressBar').style.width = (c.eggsUsed / 30 * 100) + '%';
+  const rate = c.price / c.eggsTotal;
+  const pct = (c.eggsUsed / CARTON_SIZE) * 100;
 
-  const tbody = document.querySelector('#currentTable tbody');
-  const rate = c.price / 30;
-  const entries = Object.entries(c.consumption);
-  if (!entries.length) {
-    tbody.innerHTML = '<tr><td colspan="3" class="empty">No eggs logged yet.</td></tr>';
-  } else {
-    tbody.innerHTML = entries.map(([name, eggs]) => `
+  document.getElementById('dashUsed').textContent = c.eggsUsed;
+  document.getElementById('dashLeft').textContent = Math.max(0, CARTON_SIZE - c.eggsUsed);
+  document.getElementById('dashRate').textContent = '₹' + rate.toFixed(2);
+  document.getElementById('dashPrice').textContent = 'Carton ₹' + c.price;
+  document.getElementById('dashAmount').textContent = fmt(c.eggsUsed * rate);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct.toFixed(0) + '% used';
+  document.getElementById('progressText').textContent = `${c.eggsUsed} / ${CARTON_SIZE}`;
+  document.getElementById('cartonStatus').textContent = c.eggsUsed >= CARTON_SIZE ? 'Full' : 'Active';
+
+  const m = monthKey();
+  const months = monthlyStats();
+  const ms = months[m] || { eggs: 0, spend: 0, cartons: new Set(), people: new Set() };
+  document.getElementById('monthLabel').textContent = m;
+  document.getElementById('monthEggs').textContent = ms.eggs;
+  document.getElementById('monthSpend').textContent = fmt(ms.spend);
+  document.getElementById('monthCartons').textContent = ms.cartons.size;
+  document.getElementById('monthPeople').textContent = ms.people.size;
+
+  // Top consumers
+  const top = Object.entries(ms.byPerson || {}).sort((a,b) => b[1] - a[1]).slice(0,5);
+  const el = document.getElementById('topConsumers');
+  if (!top.length) el.innerHTML = '<div class="empty">No entries this month yet</div>';
+  else {
+    const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
+    el.innerHTML = `<table><tbody>${top.map(([n, eggs], i) => `
       <tr>
-        <td>${name}</td>
-        <td>${eggs}</td>
-        <td class="amount">₹${(eggs * rate).toFixed(2)}</td>
-      </tr>`).join('');
-  }
-
-  const hist = document.getElementById('historyList');
-  if (!appData.history.length) {
-    hist.innerHTML = '<div class="empty">No past cartons yet.</div>';
-  } else {
-    hist.innerHTML = appData.history.map((h, i) => `
-      <div class="history-item">
-        <div class="title">Carton ${h.startDate} → ${h.endDate || '?'} <span class="tag">₹${h.price}</span></div>
-        <div class="meta">${h.eggsUsed}/30 eggs · ${Object.keys(h.consumption).length} people</div>
-        <button class="btn-secondary btn-sm" style="margin-top:8px;" onclick="toggleHistory(${i})">View Split</button>
-        <div id="hist-${i}"></div>
-      </div>`).join('');
+        <td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span>${n}</td>
+        <td class="num">${eggs} eggs</td>
+        <td class="amount">${fmt(eggs * rate)}</td>
+      </tr>`).join('')}</tbody></table>`;
   }
 }
 
-function toggleHistory(i) {
-  const h = appData.history[i];
-  const el = document.getElementById(`hist-${i}`);
-  if (el.dataset.open === '1') { el.innerHTML = ''; el.dataset.open = '0'; return; }
-  el.dataset.open = '1';
-  const { rate, lines, total } = generateSplit(h);
-  el.innerHTML = renderReport(lines, rate, total, h);
+function renderTodayList() {
+  const date = document.getElementById('entryDate').value || today();
+  const day = appData.currentCarton.daily?.[date] || {};
+  const el = document.getElementById('todayList');
+  document.getElementById('todayBadge').textContent = date;
+  if (!Object.keys(day).length) el.innerHTML = '<div class="empty">No entries for this date</div>';
+  else {
+    const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
+    el.innerHTML = `<table><tbody>${Object.entries(day).map(([n, e]) => `
+      <tr><td>${n}</td><td class="num">${e} eggs</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}</tbody></table>`;
+  }
+}
+
+function renderCartonTab() {
+  const c = appData.currentCarton;
+  document.getElementById('cartonPriceInput').value = c.price;
+  const { rate, lines, total } = generateSplit(c);
+  const el = document.getElementById('currentCartonDetail');
+  if (!lines.length) el.innerHTML = '<div class="empty">No eggs logged in this carton yet</div>';
+  else {
+    el.innerHTML = `
+      <table><thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead><tbody>
+        ${lines.map(l => `<tr><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}
+        <tr><td><strong>Total</strong></td><td class="num"><strong>${c.eggsUsed}</strong></td><td class="amount"><strong>${fmt(total)}</strong></td></tr>
+      </tbody></table>
+      <button class="btn-primary btn-sm" style="margin-top:12px;" onclick="copySplitForCarton('current')">📋 Copy Split for GPay</button>
+    `;
+  }
+
+  document.getElementById('historyCount').textContent = appData.history.length;
+  const hist = document.getElementById('historyList');
+  if (!appData.history.length) hist.innerHTML = '<div class="empty">No closed cartons yet</div>';
+  else {
+    hist.innerHTML = appData.history.map((h, i) => {
+      const { lines, total } = generateSplit(h);
+      return `
+      <div class="carton-card closed" onclick="toggleCartonBody(${i})">
+        <div class="carton-head">
+          <div>
+            <div class="carton-title">Carton · ₹${h.price}</div>
+            <div class="carton-meta">${h.startDate} → ${h.endDate || '?'} · ${h.eggsUsed}/${CARTON_SIZE} eggs</div>
+          </div>
+          <div class="carton-amount">${fmt(total)}</div>
+        </div>
+        <div class="carton-body" id="carton-body-${i}">
+          <table><tbody>${lines.map(l => `<tr><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}</tbody></table>
+          <button class="btn-primary btn-sm" style="margin-top:12px;" onclick="event.stopPropagation(); copySplitForCarton(${i})">📋 Copy for GPay</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function toggleCartonBody(i) {
+  document.getElementById(`carton-body-${i}`).classList.toggle('open');
+}
+
+function copySplitForCarton(idx) {
+  const carton = idx === 'current' ? appData.currentCarton : appData.history[idx];
+  const { lines, total } = generateSplit(carton);
+  const title = carton.endDate
+    ? `Egg Split (${carton.startDate} → ${carton.endDate})`
+    : `Egg Split (current carton, ${carton.startDate})`;
+  const text = `${title}\nPer egg: ₹${(carton.price/carton.eggsTotal).toFixed(2)}\n\n` +
+    lines.map(l => `${l.name}: ${l.eggs} eggs = ₹${l.amount.toFixed(2)}`).join('\n') +
+    `\n\nTotal: ₹${total.toFixed(2)}`;
+  navigator.clipboard.writeText(text).then(() => alert('Copied! Paste into GPay.'));
+}
+
+function renderPeopleTab() {
+  const months = monthlyStats();
+  const totals = {};
+  const addPerson = (name, eggs, amount) => {
+    if (!totals[name]) totals[name] = { eggs: 0, amount: 0, cartons: new Set(), months: new Set() };
+    totals[name].eggs += eggs;
+    totals[name].amount += amount;
+  };
+  const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
+  if (appData.currentCarton) {
+    for (const [date, day] of Object.entries(appData.currentCarton.daily || {})) {
+      for (const [p, e] of Object.entries(day)) {
+        addPerson(p, e, e * rate);
+        totals[p].cartons.add(appData.currentCarton.id);
+        totals[p].months.add(monthKey(date));
+      }
+    }
+  }
+  for (const h of appData.history) {
+    const hRate = h.price / h.eggsTotal;
+    for (const [date, day] of Object.entries(h.daily || {})) {
+      for (const [p, e] of Object.entries(day)) {
+        addPerson(p, e, e * hRate);
+        totals[p].cartons.add(h.id);
+        totals[p].months.add(monthKey(date));
+      }
+    }
+  }
+  const grid = document.getElementById('peopleGrid');
+  const entries = Object.entries(totals).sort((a,b) => b[1].amount - a[1].amount);
+  if (!entries.length) {
+    grid.innerHTML = '<div class="empty">No data yet. Add entries to see person summaries.</div>';
+    return;
+  }
+  grid.innerHTML = entries.map(([name, t]) => `
+    <div class="person-card">
+      <div class="name">${name} <span style="font-size:11px; color:var(--text-dim); font-weight:500;">${t.cartons.size} carton${t.cartons.size!==1?'s':''}</span></div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-label">Eggs</div><div class="metric-value">${t.eggs}</div></div>
+        <div class="metric"><div class="metric-label">Amount</div><div class="metric-value" style="color:var(--success);">${fmt(t.amount)}</div></div>
+        <div class="metric"><div class="metric-label">Months</div><div class="metric-value">${t.months.size}</div></div>
+        <div class="metric"><div class="metric-label">Avg / month</div><div class="metric-value">${fmt(t.amount / Math.max(1, t.months.size))}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderReports() {
+  const months = monthlyStats();
+  const sel = document.getElementById('reportMonth');
+  const keys = Object.keys(months).sort().reverse();
+  const current = sel.value;
+  sel.innerHTML = keys.length
+    ? keys.map(k => `<option value="${k}" ${k===current?'selected':''}>${k}</option>`).join('')
+    : '<option value="">No data</option>';
+  const key = sel.value || keys[0];
+  const el = document.getElementById('monthReport');
+  if (!key || !months[key]) { el.innerHTML = '<div class="empty">No data</div>'; }
+  else {
+    const m = months[key];
+    const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
+    const lines = Object.entries(m.byPerson).sort((a,b) => b[1] - a[1]);
+    el.innerHTML = `
+      <div class="stat-grid" style="margin-bottom:16px;">
+        <div class="stat"><div class="stat-label">Eggs</div><div class="stat-value">${m.eggs}</div></div>
+        <div class="stat success"><div class="stat-label">Spend</div><div class="stat-value">${fmt(m.spend)}</div></div>
+        <div class="stat accent"><div class="stat-label">Cartons</div><div class="stat-value">${m.cartons.size}</div></div>
+        <div class="stat warning"><div class="stat-label">People</div><div class="stat-value">${m.people.size}</div></div>
+      </div>
+      <table><thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead><tbody>
+        ${lines.map(([n, e]) => `<tr><td>${n}</td><td class="num">${e}</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  // Leaderboard (all time)
+  const allTime = {};
+  const allRate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
+  if (appData.currentCarton) {
+    for (const day of Object.values(appData.currentCarton.daily || {})) {
+      for (const [p, e] of Object.entries(day)) allTime[p] = (allTime[p] || 0) + e * allRate;
+    }
+  }
+  for (const h of appData.history) {
+    const r = h.price / h.eggsTotal;
+    for (const day of Object.values(h.daily || {})) {
+      for (const [p, e] of Object.entries(day)) allTime[p] = (allTime[p] || 0) + e * r;
+    }
+  }
+  const lb = Object.entries(allTime).sort((a,b) => b[1] - a[1]).slice(0,10);
+  const lbEl = document.getElementById('leaderboard');
+  if (!lb.length) lbEl.innerHTML = '<div class="empty">No data</div>';
+  else lbEl.innerHTML = `<table><tbody>${lb.map(([n, amt], i) => `
+    <tr><td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span>${n}</td><td class="amount" style="text-align:right;">${fmt(amt)}</td></tr>
+  `).join('')}</tbody></table>`;
 }
 </script>
 </body>
