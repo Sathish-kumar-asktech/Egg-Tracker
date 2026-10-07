@@ -7,10 +7,10 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --surface-2: #334155;
-    --border: #334155;
+    --bg: #0b1120;
+    --surface: #131c31;
+    --surface-2: #1e2a44;
+    --border: #2a3a5c;
     --text: #f1f5f9;
     --text-dim: #94a3b8;
     --primary: #3b82f6;
@@ -20,64 +20,157 @@
     --danger: #ef4444;
     --accent: #8b5cf6;
     --radius: 14px;
-    --shadow: 0 4px 20px rgba(0,0,0,.25);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,.2);
+    --shadow-md: 0 8px 24px rgba(0,0,0,.3);
+    --shadow-lg: 0 16px 48px rgba(0,0,0,.4);
+    --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+    --ease-smooth: cubic-bezier(.4, 0, .2, 1);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
     background: var(--bg);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(59,130,246,.08), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(139,92,246,.08), transparent 40%);
     color: var(--text);
     min-height: 100vh;
     font-size: 14px;
     line-height: 1.5;
+    overflow-x: hidden;
   }
   .app { max-width: 1100px; margin: 0 auto; padding: 20px 16px 100px; }
 
-  /* Header */
+  /* ===== KEYFRAMES ===== */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,.5); }
+    50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideOutRight {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+  }
+  @keyframes bounceIn {
+    0% { opacity: 0; transform: scale(.3); }
+    50% { opacity: 1; transform: scale(1.05); }
+    70% { transform: scale(.95); }
+    100% { transform: scale(1); }
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* ===== HEADER ===== */
   .header {
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+    animation: fadeSlideIn .5s var(--ease-smooth) both;
   }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand-icon {
     width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; box-shadow: 0 4px 12px rgba(245,158,11,.3);
+    font-size: 24px; box-shadow: 0 4px 12px rgba(245,158,11,.35);
+    transition: transform .3s var(--ease-spring);
   }
+  .brand-icon:hover { transform: scale(1.08) rotate(-6deg); }
   .brand-text h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
   .brand-text p { margin: 2px 0 0; font-size: 12px; color: var(--text-dim); }
   .user-chip {
     display: flex; align-items: center; gap: 8px;
     background: var(--surface); padding: 8px 14px; border-radius: 100px;
     font-size: 12px; color: var(--text-dim); border: 1px solid var(--border);
+    transition: border-color .2s;
   }
-  .user-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+  .user-chip:hover { border-color: var(--primary); }
+  .user-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--success);
+    animation: pulseGlow 2s infinite;
+  }
 
-  /* Tabs */
+  /* ===== TABS ===== */
   .tabs {
+    position: relative;
     display: flex; gap: 4px; margin-bottom: 24px;
     background: var(--surface); padding: 4px; border-radius: 12px;
     overflow-x: auto; scrollbar-width: none;
+    animation: fadeSlideIn .5s .05s var(--ease-smooth) both;
   }
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
+    position: relative; z-index: 2;
     flex: 1; min-width: 90px; padding: 10px 16px;
     background: transparent; border: none; color: var(--text-dim);
     font-size: 13px; font-weight: 600; border-radius: 8px;
-    cursor: pointer; transition: all .2s; white-space: nowrap;
+    cursor: pointer; transition: color .25s var(--ease-smooth); white-space: nowrap;
     font-family: inherit;
   }
-  .tab.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(59,130,246,.3); }
+  .tab.active { color: #fff; }
   .tab:hover:not(.active) { color: var(--text); }
+  .tab-indicator {
+    position: absolute; top: 4px; bottom: 4px; left: 4px;
+    background: var(--primary); border-radius: 8px; z-index: 1;
+    box-shadow: 0 4px 12px rgba(59,130,246,.4);
+    transition: transform .35s var(--ease-spring), width .35s var(--ease-spring);
+    pointer-events: none;
+  }
 
-  /* Cards */
+  /* ===== CARDS ===== */
   .card {
     background: var(--surface); border-radius: var(--radius);
     padding: 20px; margin-bottom: 16px;
     border: 1px solid var(--border);
+    animation: fadeSlideIn .45s var(--ease-smooth) both;
+    transition: transform .25s var(--ease-smooth), box-shadow .25s var(--ease-smooth), border-color .25s;
   }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(59,130,246,.3);
+  }
+  .card:nth-child(1) { animation-delay: .05s; }
+  .card:nth-child(2) { animation-delay: .1s; }
+  .card:nth-child(3) { animation-delay: .15s; }
+  .card:nth-child(4) { animation-delay: .2s; }
+
   .card-title {
     font-size: 13px; font-weight: 600; text-transform: uppercase;
     letter-spacing: .8px; color: var(--text-dim); margin: 0 0 16px;
@@ -87,162 +180,325 @@
     text-transform: none; letter-spacing: 0; font-size: 11px;
     background: var(--surface-2); color: var(--text-dim);
     padding: 3px 10px; border-radius: 100px; font-weight: 500;
+    transition: all .3s var(--ease-spring);
   }
+  .card-title .badge.success { background: rgba(16,185,129,.15); color: var(--success); }
+  .card-title .badge.warning { background: rgba(245,158,11,.15); color: var(--warning); }
 
-  /* Stat grid */
+  /* ===== STATS ===== */
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
   .stat {
     background: var(--surface-2); border-radius: 12px; padding: 16px;
     position: relative; overflow: hidden;
+    transition: transform .3s var(--ease-spring), background .25s;
+    animation: scaleIn .5s var(--ease-spring) both;
   }
+  .stat:hover { transform: translateY(-3px) scale(1.02); background: #24314e; }
   .stat::before {
     content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
     background: var(--primary);
+    transition: width .3s var(--ease-smooth);
   }
+  .stat:hover::before { width: 6px; }
   .stat.success::before { background: var(--success); }
   .stat.warning::before { background: var(--warning); }
   .stat.accent::before { background: var(--accent); }
   .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-dim); margin-bottom: 6px; }
-  .stat-value { font-size: 26px; font-weight: 700; letter-spacing: -.5px; line-height: 1.1; }
+  .stat-value {
+    font-size: 26px; font-weight: 700; letter-spacing: -.5px; line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    transition: color .3s;
+  }
   .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
-  /* Progress */
+  /* ===== PROGRESS ===== */
   .progress-wrap { margin-top: 16px; }
   .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
-  .progress { height: 10px; background: var(--surface-2); border-radius: 100px; overflow: hidden; }
+  .progress {
+    height: 10px; background: var(--surface-2); border-radius: 100px;
+    overflow: hidden; position: relative;
+  }
   .progress-bar {
-    height: 100%; background: linear-gradient(90deg, var(--primary), var(--success));
-    transition: width .4s ease; border-radius: 100px;
+    height: 100%; border-radius: 100px;
+    background: linear-gradient(90deg, #3b82f6, #10b981, #3b82f6);
+    background-size: 200% 100%;
+    animation: gradientShift 3s linear infinite;
+    transition: width .8s var(--ease-spring);
+    position: relative;
+  }
+  .progress-bar::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
   }
 
-  /* Buttons */
+  /* ===== BUTTONS ===== */
   button {
+    position: relative; overflow: hidden;
     font-family: inherit; font-size: 13px; font-weight: 600;
     padding: 10px 18px; border: none; border-radius: 10px;
-    cursor: pointer; transition: all .15s; letter-spacing: -.1px;
+    cursor: pointer; letter-spacing: -.1px;
+    transition: transform .15s var(--ease-spring), background .2s, box-shadow .2s;
   }
-  button:active { transform: scale(.97); }
+  button:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  button:active { transform: scale(.96); }
+  button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
   .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 6px 16px rgba(59,130,246,.35); }
   .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { box-shadow: 0 6px 16px rgba(16,185,129,.35); }
   .btn-danger { background: var(--danger); color: #fff; }
   .btn-ghost { background: var(--surface-2); color: var(--text); }
   .btn-ghost:hover { background: var(--border); }
   .btn-sm { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
   .btn-block { width: 100%; }
 
-  /* Forms */
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,.5);
+    transform: scale(0); pointer-events: none;
+    animation: ripple .6s linear;
+  }
+
+  /* ===== FORMS ===== */
   input, select {
     font-family: inherit; font-size: 14px; width: 100%;
     padding: 11px 14px; border: 1px solid var(--border);
     border-radius: 10px; background: var(--bg); color: var(--text);
-    transition: border-color .15s;
+    transition: border-color .2s, box-shadow .2s, transform .15s;
   }
-  input:focus, select:focus { outline: none; border-color: var(--primary); }
+  input:focus, select:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+    transform: translateY(-1px);
+  }
   input::placeholder { color: var(--text-dim); }
   .form-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
   .form-row input, .form-row select { flex: 1; min-width: 120px; }
   .form-row .btn-sm { flex-shrink: 0; }
 
-  /* Tables */
+  /* ===== TABLES ===== */
   table { width: 100%; border-collapse: collapse; }
   th, td { padding: 12px 10px; text-align: left; font-size: 13px; }
   th {
     font-size: 11px; text-transform: uppercase; letter-spacing: .5px;
-    color: var(--text-dim); font-weight: 600; border-bottom: 1px solid var(--border);
+    color: var(--text-dim); font-weight: 600;
+    border-bottom: 1px solid var(--border);
   }
-  td { border-bottom: 1px solid var(--surface-2); }
+  td { border-bottom: 1px solid var(--surface-2); transition: background .2s; }
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(59,130,246,.04); }
+  tbody tr { animation: fadeSlideIn .35s var(--ease-smooth) both; }
+  tbody tr:nth-child(1) { animation-delay: .02s; }
+  tbody tr:nth-child(2) { animation-delay: .04s; }
+  tbody tr:nth-child(3) { animation-delay: .06s; }
+  tbody tr:nth-child(4) { animation-delay: .08s; }
+  tbody tr:nth-child(5) { animation-delay: .1s; }
+  tbody tr:nth-child(n+6) { animation-delay: .12s; }
+  tbody tr:hover td { background: rgba(59,130,246,.06); }
   .amount { font-weight: 700; color: var(--success); font-variant-numeric: tabular-nums; }
   .num { font-variant-numeric: tabular-nums; }
-  .rank { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center;
-    background: var(--surface-2); border-radius: 50%; font-size: 11px; font-weight: 700; color: var(--text-dim); margin-right: 8px; }
-  .rank.gold { background: #f59e0b; color: #fff; }
-  .rank.silver { background: #94a3b8; color: #fff; }
-  .rank.bronze { background: #b45309; color: #fff; }
+  .rank {
+    display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center;
+    background: var(--surface-2); border-radius: 50%; font-size: 11px; font-weight: 700;
+    color: var(--text-dim); margin-right: 8px;
+    transition: transform .3s var(--ease-spring);
+  }
+  tr:hover .rank { transform: scale(1.15) rotate(-5deg); }
+  .rank.gold { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #fff; box-shadow: 0 2px 8px rgba(245,158,11,.4); }
+  .rank.silver { background: linear-gradient(135deg, #94a3b8, #cbd5e1); color: #fff; }
+  .rank.bronze { background: linear-gradient(135deg, #b45309, #d97706); color: #fff; }
 
-  /* Entry rows */
+  /* ===== ENTRY ROWS ===== */
   .entry-list { display: flex; flex-direction: column; gap: 4px; }
   .entry-row {
     display: grid; grid-template-columns: 1fr 90px; gap: 10px; align-items: center;
     padding: 8px 12px; background: var(--bg); border-radius: 10px;
+    animation: fadeSlideIn .4s var(--ease-smooth) both;
+    transition: background .2s, transform .2s;
   }
+  .entry-row:hover { background: #0f1a2e; transform: translateX(2px); }
   .entry-row label { font-size: 14px; font-weight: 500; }
   .entry-row input { padding: 8px 10px; text-align: center; font-weight: 600; }
 
-  /* Report box */
+  /* ===== REPORT ===== */
   .report-box {
     background: rgba(16,185,129,.08);
     border: 1px solid rgba(16,185,129,.3);
     border-radius: 12px; padding: 16px; margin-top: 12px;
+    animation: scaleIn .35s var(--ease-spring) both;
   }
-  .rep-line { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; border-bottom: 1px dashed rgba(16,185,129,.15); }
+  .rep-line {
+    display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px;
+    border-bottom: 1px dashed rgba(16,185,129,.15);
+    animation: fadeSlideIn .4s var(--ease-smooth) both;
+  }
   .rep-line:last-of-type { border-bottom: none; }
-  .rep-line.total { font-weight: 700; border-top: 2px solid rgba(16,185,129,.4); margin-top: 6px; padding-top: 12px; border-bottom: none; font-size: 14px; }
+  .rep-line.total {
+    font-weight: 700; border-top: 2px solid rgba(16,185,129,.4);
+    margin-top: 6px; padding-top: 12px; border-bottom: none; font-size: 14px;
+  }
 
-  /* History cards */
+  /* ===== CARTON CARDS ===== */
   .carton-card {
     background: var(--surface-2); border-radius: 12px; padding: 16px;
     margin-bottom: 10px; border-left: 4px solid var(--primary);
-    cursor: pointer; transition: all .15s;
+    cursor: pointer;
+    transition: transform .25s var(--ease-spring), background .2s, border-color .2s;
+    animation: fadeSlideIn .4s var(--ease-smooth) both;
   }
-  .carton-card:hover { transform: translateX(2px); }
+  .carton-card:hover { transform: translateX(4px) scale(1.005); background: #24314e; }
   .carton-card.active { border-left-color: var(--warning); }
   .carton-card.closed { border-left-color: var(--success); }
   .carton-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
   .carton-title { font-size: 14px; font-weight: 700; }
   .carton-meta { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
   .carton-amount { font-size: 15px; font-weight: 700; color: var(--success); }
-  .carton-body { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: none; }
-  .carton-body.open { display: block; }
+  .carton-body {
+    margin-top: 0; padding-top: 0; border-top: 1px solid var(--border);
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows .4s var(--ease-smooth), padding-top .4s, margin-top .4s;
+  }
+  .carton-body > div { overflow: hidden; }
+  .carton-body.open { grid-template-rows: 1fr; padding-top: 12px; margin-top: 12px; }
 
-  /* Person card */
+  /* ===== PERSON CARDS ===== */
   .person-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
   .person-card {
     background: var(--surface-2); border-radius: 12px; padding: 16px;
     display: flex; flex-direction: column; gap: 10px;
+    transition: transform .3s var(--ease-spring), box-shadow .3s, background .25s;
+    animation: scaleIn .45s var(--ease-spring) both;
   }
-  .person-card .name { font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; }
+  .person-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-md);
+    background: #24314e;
+  }
+  .person-card .name {
+    font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: space-between;
+  }
   .person-card .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; }
-  .person-card .metric { background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+  .person-card .metric {
+    background: var(--bg); border-radius: 8px; padding: 8px 10px;
+    transition: background .2s;
+  }
+  .person-card .metric:hover { background: #0f1a2e; }
   .person-card .metric-label { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
-  .person-card .metric-value { font-weight: 700; margin-top: 2px; font-size: 14px; }
+  .person-card .metric-value { font-weight: 700; margin-top: 2px; font-size: 14px; font-variant-numeric: tabular-nums; }
 
-  /* Empty */
-  .empty { text-align: center; color: var(--text-dim); padding: 32px 20px; font-size: 13px; }
+  /* ===== EMPTY ===== */
+  .empty {
+    text-align: center; color: var(--text-dim); padding: 32px 20px; font-size: 13px;
+    animation: fadeSlideIn .5s var(--ease-smooth) both;
+  }
+  .empty::before { content: '🥚'; display: block; font-size: 36px; margin-bottom: 12px; opacity: .5; }
 
-  /* Login */
+  /* ===== LOGIN ===== */
   .login-overlay {
     position: fixed; inset: 0;
-    background: radial-gradient(circle at 50% 0%, #1e293b, #0f172a);
+    background: radial-gradient(circle at 50% 0%, #1e293b, #0b1120);
     display: flex; align-items: center; justify-content: center; z-index: 100;
     padding: 20px;
+    transition: opacity .4s, visibility .4s;
   }
+  .login-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
   .login-card {
     text-align: center; padding: 48px 40px; background: var(--surface);
-    border-radius: 20px; box-shadow: var(--shadow); max-width: 400px; width: 100%;
+    border-radius: 20px; box-shadow: var(--shadow-lg); max-width: 400px; width: 100%;
     border: 1px solid var(--border);
+    animation: bounceIn .8s var(--ease-spring) both;
   }
   .login-card .logo {
     width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 20px;
-    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+    background-size: 200% 200%;
+    animation: float 3s ease-in-out infinite, gradientShift 4s ease infinite;
     display: flex; align-items: center; justify-content: center; font-size: 40px;
     box-shadow: 0 8px 24px rgba(245,158,11,.4);
   }
-  .login-card h1 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.5px; }
+  .login-card h1 {
+    margin: 0 0 8px; font-size: 26px; letter-spacing: -.5px;
+    background: linear-gradient(135deg, #f1f5f9, #94a3b8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
   .login-card p { margin: 0 0 28px; color: var(--text-dim); font-size: 14px; }
+
+  /* ===== TAB PANELS ===== */
+  .tab-panel { animation: fadeSlideUp .4s var(--ease-smooth) both; }
+
+  /* ===== TOAST ===== */
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .toast {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: 10px; padding: 14px 18px;
+    box-shadow: var(--shadow-lg); min-width: 260px; max-width: 360px;
+    font-size: 13px; color: var(--text);
+    animation: slideInRight .4s var(--ease-spring) both;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.success { border-left-color: var(--success); }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.warning { border-left-color: var(--warning); }
+  .toast.removing { animation: slideOutRight .3s var(--ease-smooth) both; }
+  .toast-icon { font-size: 18px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 300; padding: 20px;
+    animation: fadeSlideIn .25s var(--ease-smooth) both;
+    backdrop-filter: blur(4px);
+  }
+  .modal {
+    background: var(--surface); border-radius: 16px; padding: 24px;
+    max-width: 400px; width: 100%; border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    animation: bounceIn .4s var(--ease-spring) both;
+  }
+  .modal h3 { margin: 0 0 16px; font-size: 18px; }
+  .modal input { margin-bottom: 16px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ===== CONFETTI ===== */
+  .confetti {
+    position: fixed; width: 10px; height: 10px; top: -10px;
+    pointer-events: none; z-index: 500;
+    animation: confettiFall linear forwards;
+  }
+
+  /* ===== LOADING SKELETON ===== */
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+    background-size: 200% 100%; animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+  }
 
   .hidden { display: none !important; }
   .loading { text-align: center; padding: 40px; color: var(--text-dim); font-size: 13px; }
 
-  /* Responsive */
+  /* ===== MOBILE ===== */
   @media (max-width: 600px) {
     .app { padding: 16px 12px 80px; }
     .brand-text h1 { font-size: 17px; }
     .stat-value { font-size: 22px; }
     th, td { padding: 10px 8px; font-size: 12px; }
     .user-chip { display: none; }
+    .toast-container { bottom: 16px; right: 16px; left: 16px; }
+    .toast { min-width: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      transition-duration: .01ms !important;
+    }
   }
 </style>
 </head>
@@ -270,12 +526,13 @@
     </div>
     <div class="user-chip">
       <span class="user-dot"></span>
-      <span>Synced</span>
+      <span id="syncStatus">Synced</span>
       <button class="btn-ghost btn-sm" onclick="signOut()" style="margin-left:8px;">Sign out</button>
     </div>
   </div>
 
-  <div class="tabs">
+  <div class="tabs" id="tabs">
+    <div class="tab-indicator" id="tabIndicator"></div>
     <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
     <button class="tab" data-tab="entry">✍️ Daily Entry</button>
     <button class="tab" data-tab="cartons">📦 Cartons</button>
@@ -293,12 +550,12 @@
       <div class="stat-grid">
         <div class="stat">
           <div class="stat-label">Eggs used</div>
-          <div class="stat-value" id="dashUsed">0</div>
+          <div class="stat-value" data-count id="dashUsed">0</div>
           <div class="stat-sub">of 30</div>
         </div>
         <div class="stat success">
           <div class="stat-label">Remaining</div>
-          <div class="stat-value" id="dashLeft">30</div>
+          <div class="stat-value" data-count id="dashLeft">30</div>
           <div class="stat-sub">eggs left</div>
         </div>
         <div class="stat warning">
@@ -326,7 +583,7 @@
       <div class="stat-grid">
         <div class="stat">
           <div class="stat-label">Eggs</div>
-          <div class="stat-value" id="monthEggs">0</div>
+          <div class="stat-value" data-count id="monthEggs">0</div>
         </div>
         <div class="stat success">
           <div class="stat-label">Total spend</div>
@@ -334,11 +591,11 @@
         </div>
         <div class="stat accent">
           <div class="stat-label">Cartons</div>
-          <div class="stat-value" id="monthCartons">0</div>
+          <div class="stat-value" data-count id="monthCartons">0</div>
         </div>
         <div class="stat warning">
           <div class="stat-label">People</div>
-          <div class="stat-value" id="monthPeople">0</div>
+          <div class="stat-value" data-count id="monthPeople">0</div>
         </div>
       </div>
     </div>
@@ -361,13 +618,13 @@
       <div class="entry-list" id="entryList"></div>
       <div class="form-row" style="margin-top:14px;">
         <button class="btn-primary btn-block" onclick="saveDailyEntry()">💾 Save Day</button>
-        <button class="btn-ghost" onclick="addNewPerson()">+ Person</button>
+        <button class="btn-ghost" onclick="showAddPersonModal()">+ Person</button>
       </div>
       <div id="dailyTotals" style="margin-top:12px; color:var(--text-dim); font-size:12px; text-align:center;"></div>
     </div>
 
     <div class="card">
-      <div class="card-title">Today's Entries <span class="badge" id="todayBadge"></span></div>
+      <div class="card-title">Entries for Date <span class="badge" id="todayBadge"></span></div>
       <div id="todayList"></div>
     </div>
   </div>
@@ -401,7 +658,7 @@
     <div class="card">
       <div class="card-title">
         People
-        <button class="btn-primary btn-sm" onclick="addNewPerson()">+ Add Person</button>
+        <button class="btn-primary btn-sm" onclick="showAddPersonModal()">+ Add Person</button>
       </div>
       <div class="person-grid" id="peopleGrid"></div>
     </div>
@@ -424,6 +681,8 @@
   </div>
 </div>
 
+<div class="toast-container" id="toastContainer"></div>
+
 <script>
 const CLIENT_ID = '1075127970047-ed7dgjkf04mqd0tu2lnokadrocfltd03.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
@@ -433,8 +692,9 @@ const CARTON_SIZE = 30;
 
 let accessToken = null, tokenClient = null;
 let appData = { people: [], currentCarton: null, history: [] };
+const animatedValues = new WeakMap();
 
-// ---------- INIT ----------
+// ===== INIT =====
 window.onload = () => {
   const wait = setInterval(() => {
     if (typeof google !== 'undefined' && google.accounts) {
@@ -449,13 +709,119 @@ window.onload = () => {
   }, 100);
   document.getElementById('entryDate').value = today();
   document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchTab(t.dataset.tab));
+  document.querySelectorAll('button').forEach(b => b.addEventListener('click', createRipple));
+  moveTabIndicator();
+  window.addEventListener('resize', moveTabIndicator);
 };
 
 function today() { return new Date().toISOString().slice(0,10); }
 function monthKey(d) { return (d || today()).slice(0,7); }
 function fmt(n) { return '₹' + Number(n).toFixed(2); }
 
-// ---------- AUTH ----------
+// ===== RIPPLE =====
+function createRipple(e) {
+  const btn = e.currentTarget;
+  const circle = document.createElement('span');
+  const d = Math.max(btn.clientWidth, btn.clientHeight);
+  const r = btn.getBoundingClientRect();
+  circle.style.width = circle.style.height = d + 'px';
+  circle.style.left = (e.clientX - r.left - d/2) + 'px';
+  circle.style.top = (e.clientY - r.top - d/2) + 'px';
+  circle.className = 'ripple';
+  btn.appendChild(circle);
+  setTimeout(() => circle.remove(), 600);
+}
+
+// ===== TOAST =====
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌' };
+  el.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.classList.add('removing');
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
+}
+
+// ===== NUMBER COUNT-UP =====
+function animateValue(el, to) {
+  if (el.id === 'dashRate' || el.id === 'dashAmount' || el.id === 'monthSpend') return;
+  const from = parseInt(el.dataset.val || '0') || 0;
+  if (from === to) return;
+  el.dataset.val = to;
+  const dur = 600;
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (to - from) * eased);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ===== TAB INDICATOR =====
+function moveTabIndicator() {
+  const active = document.querySelector('.tab.active');
+  const indicator = document.getElementById('tabIndicator');
+  if (!active || !indicator) return;
+  const tabsRect = document.getElementById('tabs').getBoundingClientRect();
+  const r = active.getBoundingClientRect();
+  indicator.style.width = r.width + 'px';
+  indicator.style.transform = `translateX(${r.left - tabsRect.left - 4}px)`;
+}
+
+// ===== CONFETTI =====
+function celebrate() {
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.animationDelay = Math.random() * 0.4 + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 5000);
+  }
+}
+
+// ===== MODAL =====
+function showAddPersonModal() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>Add Person</h3>
+      <input type="text" id="modalNameInput" placeholder="Person name" autofocus>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modalCancel">Cancel</button>
+        <button class="btn-primary" id="modalConfirm">Add</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const input = overlay.querySelector('#modalNameInput');
+  setTimeout(() => input.focus(), 100);
+  const close = () => overlay.remove();
+  const confirm = () => {
+    const name = input.value.trim();
+    if (!name) return;
+    if (appData.people.includes(name)) { toast('Already exists', 'warning'); return; }
+    appData.people.push(name);
+    saveData(); render(); buildEntryForm();
+    toast(`Added ${name}`, 'success');
+    close();
+  };
+  overlay.querySelector('#modalCancel').onclick = close;
+  overlay.querySelector('#modalConfirm').onclick = confirm;
+  input.onkeydown = (e) => { if (e.key === 'Enter') confirm(); if (e.key === 'Escape') close(); };
+  overlay.onclick = (e) => { if (e.target === overlay) close(); };
+}
+
+// ===== AUTH =====
 async function onSignIn() {
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('appContent').classList.remove('hidden');
@@ -480,7 +846,7 @@ function signOut() {
   document.getElementById('appContent').classList.add('hidden');
 }
 
-// ---------- DRIVE ----------
+// ===== DRIVE =====
 async function getFolderId() {
   const q = `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
   const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${accessToken}` } });
@@ -507,10 +873,12 @@ async function loadData() {
       const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${accessToken}` } });
       if (r.ok) appData = { ...appData, ...(await r.json()) };
     }
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error(e); toast('Load failed', 'error'); }
 }
 async function saveData() {
   if (!accessToken) return;
+  const status = document.getElementById('syncStatus');
+  if (status) status.textContent = 'Syncing…';
   try {
     const folderId = await getFolderId();
     const fileId = await getFileId(folderId);
@@ -523,10 +891,15 @@ async function saveData() {
       ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
       : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
     await fetch(url, { method: fileId ? 'PATCH' : 'POST', headers: { Authorization: `Bearer ${accessToken}` }, body: form });
-  } catch(e) { console.error('save err', e); }
+    if (status) status.textContent = 'Synced';
+  } catch(e) {
+    console.error('save err', e);
+    if (status) status.textContent = 'Sync failed';
+    toast('Save failed', 'error');
+  }
 }
 
-// ---------- CARTON ----------
+// ===== CARTON =====
 function createNewCarton() {
   appData.currentCarton = {
     id: 'carton_' + Date.now(),
@@ -538,24 +911,26 @@ function createNewCarton() {
 }
 function updatePrice() {
   const p = parseFloat(document.getElementById('cartonPriceInput').value);
-  if (p > 0) { appData.currentCarton.price = p; saveData(); render(); }
+  if (p > 0) { appData.currentCarton.price = p; saveData(); render(); toast('Price updated', 'success'); }
 }
 function closeCarton() {
   const c = appData.currentCarton;
-  if (c.eggsUsed === 0) return alert('No eggs used yet.');
+  if (c.eggsUsed === 0) return toast('No eggs used yet', 'warning');
   if (!confirm(`Close carton with ${c.eggsUsed}/${CARTON_SIZE} used?`)) return;
   c.endDate = today();
   appData.history.unshift(c);
   createNewCarton();
+  celebrate();
+  toast('Carton closed 🎉', 'success');
   render();
   buildEntryForm();
 }
 
-// ---------- DAILY ENTRY ----------
+// ===== DAILY ENTRY =====
 function buildEntryForm() {
   const wrap = document.getElementById('entryList');
-  wrap.innerHTML = appData.people.map(p => `
-    <div class="entry-row">
+  wrap.innerHTML = appData.people.map((p, i) => `
+    <div class="entry-row" style="animation-delay:${i * 0.03}s">
       <label>${p}</label>
       <input type="number" min="0" data-person="${p}" placeholder="0">
     </div>`).join('');
@@ -568,6 +943,7 @@ function loadDateForEdit() {
   const day = appData.currentCarton.daily?.[date] || {};
   document.querySelectorAll('#entryList input').forEach(i => i.value = day[i.dataset.person] ?? '');
   updateDailyTotals();
+  renderTodayList();
 }
 function clearEntryForm() {
   document.querySelectorAll('#entryList input').forEach(i => i.value = '');
@@ -582,7 +958,7 @@ function updateDailyTotals() {
 }
 function saveDailyEntry() {
   const date = document.getElementById('entryDate').value;
-  if (!date) return alert('Pick a date.');
+  if (!date) return toast('Pick a date', 'warning');
   const c = appData.currentCarton;
   if (!c.daily) c.daily = {};
   const day = {};
@@ -593,7 +969,7 @@ function saveDailyEntry() {
   });
   const oldTotal = Object.values(c.daily[date] || {}).reduce((a,b) => a+b, 0);
   const newUsed = c.eggsUsed - oldTotal + dayTotal;
-  if (newUsed > CARTON_SIZE) return alert(`Would exceed ${CARTON_SIZE}. Currently used ${c.eggsUsed}, this change adds ${dayTotal - oldTotal}.`);
+  if (newUsed > CARTON_SIZE) return toast(`Would exceed ${CARTON_SIZE}`, 'error');
   c.daily[date] = day;
   c.consumption = {};
   for (const d of Object.values(c.daily)) {
@@ -603,17 +979,10 @@ function saveDailyEntry() {
   saveData();
   render();
   updateDailyTotals();
-  alert(`Saved ${date}: ${dayTotal} eggs`);
-}
-function addNewPerson() {
-  const name = prompt('Person name:');
-  if (!name) return;
-  if (appData.people.includes(name)) return alert('Already exists.');
-  appData.people.push(name);
-  saveData(); render(); buildEntryForm();
+  toast(`Saved ${date}: ${dayTotal} eggs`, 'success');
 }
 
-// ---------- SPLIT ----------
+// ===== SPLIT =====
 function generateSplit(carton) {
   const rate = carton.price / carton.eggsTotal;
   const lines = Object.entries(carton.consumption).map(([name, eggs]) => ({ name, eggs, amount: eggs * rate }));
@@ -622,7 +991,7 @@ function generateSplit(carton) {
   return { rate, lines, total };
 }
 
-// ---------- MONTHLY AGGREGATION ----------
+// ===== MONTHLY =====
 function monthlyStats() {
   const months = {};
   const addCarton = (carton) => {
@@ -644,7 +1013,7 @@ function monthlyStats() {
   return months;
 }
 
-// ---------- RENDER ----------
+// ===== RENDER =====
 function render() {
   renderDashboard();
   renderCartonTab();
@@ -654,7 +1023,18 @@ function render() {
 }
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + name));
+  moveTabIndicator();
+  const panel = document.getElementById('tab-' + name);
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    if (p === panel) {
+      p.classList.remove('hidden');
+      p.style.animation = 'none';
+      void p.offsetWidth;
+      p.style.animation = '';
+    } else {
+      p.classList.add('hidden');
+    }
+  });
 }
 
 function renderDashboard() {
@@ -662,36 +1042,37 @@ function renderDashboard() {
   const rate = c.price / c.eggsTotal;
   const pct = (c.eggsUsed / CARTON_SIZE) * 100;
 
-  document.getElementById('dashUsed').textContent = c.eggsUsed;
-  document.getElementById('dashLeft').textContent = Math.max(0, CARTON_SIZE - c.eggsUsed);
+  animateValue(document.getElementById('dashUsed'), c.eggsUsed);
+  animateValue(document.getElementById('dashLeft'), Math.max(0, CARTON_SIZE - c.eggsUsed));
   document.getElementById('dashRate').textContent = '₹' + rate.toFixed(2);
   document.getElementById('dashPrice').textContent = 'Carton ₹' + c.price;
   document.getElementById('dashAmount').textContent = fmt(c.eggsUsed * rate);
   document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('progressLabel').textContent = pct.toFixed(0) + '% used';
   document.getElementById('progressText').textContent = `${c.eggsUsed} / ${CARTON_SIZE}`;
-  document.getElementById('cartonStatus').textContent = c.eggsUsed >= CARTON_SIZE ? 'Full' : 'Active';
+  const status = document.getElementById('cartonStatus');
+  status.textContent = c.eggsUsed >= CARTON_SIZE ? 'Full' : 'Active';
+  status.className = 'badge ' + (c.eggsUsed >= CARTON_SIZE ? 'warning' : 'success');
 
   const m = monthKey();
   const months = monthlyStats();
   const ms = months[m] || { eggs: 0, spend: 0, cartons: new Set(), people: new Set() };
   document.getElementById('monthLabel').textContent = m;
-  document.getElementById('monthEggs').textContent = ms.eggs;
+  animateValue(document.getElementById('monthEggs'), ms.eggs);
   document.getElementById('monthSpend').textContent = fmt(ms.spend);
-  document.getElementById('monthCartons').textContent = ms.cartons.size;
-  document.getElementById('monthPeople').textContent = ms.people.size;
+  animateValue(document.getElementById('monthCartons'), ms.cartons.size);
+  animateValue(document.getElementById('monthPeople'), ms.people.size);
 
-  // Top consumers
   const top = Object.entries(ms.byPerson || {}).sort((a,b) => b[1] - a[1]).slice(0,5);
   const el = document.getElementById('topConsumers');
   if (!top.length) el.innerHTML = '<div class="empty">No entries this month yet</div>';
   else {
-    const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
+    const rate2 = appData.currentCarton.price / appData.currentCarton.eggsTotal;
     el.innerHTML = `<table><tbody>${top.map(([n, eggs], i) => `
-      <tr>
+      <tr style="animation-delay:${i * 0.04}s">
         <td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span>${n}</td>
         <td class="num">${eggs} eggs</td>
-        <td class="amount">${fmt(eggs * rate)}</td>
+        <td class="amount">${fmt(eggs * rate2)}</td>
       </tr>`).join('')}</tbody></table>`;
   }
 }
@@ -704,21 +1085,21 @@ function renderTodayList() {
   if (!Object.keys(day).length) el.innerHTML = '<div class="empty">No entries for this date</div>';
   else {
     const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
-    el.innerHTML = `<table><tbody>${Object.entries(day).map(([n, e]) => `
-      <tr><td>${n}</td><td class="num">${e} eggs</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}</tbody></table>`;
+    el.innerHTML = `<table><tbody>${Object.entries(day).map(([n, e], i) => `
+      <tr style="animation-delay:${i * 0.04}s"><td>${n}</td><td class="num">${e} eggs</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}</tbody></table>`;
   }
 }
 
 function renderCartonTab() {
   const c = appData.currentCarton;
   document.getElementById('cartonPriceInput').value = c.price;
-  const { rate, lines, total } = generateSplit(c);
+  const { lines, total } = generateSplit(c);
   const el = document.getElementById('currentCartonDetail');
   if (!lines.length) el.innerHTML = '<div class="empty">No eggs logged in this carton yet</div>';
   else {
     el.innerHTML = `
       <table><thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead><tbody>
-        ${lines.map(l => `<tr><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}
+        ${lines.map((l, i) => `<tr style="animation-delay:${i * 0.03}s"><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}
         <tr><td><strong>Total</strong></td><td class="num"><strong>${c.eggsUsed}</strong></td><td class="amount"><strong>${fmt(total)}</strong></td></tr>
       </tbody></table>
       <button class="btn-primary btn-sm" style="margin-top:12px;" onclick="copySplitForCarton('current')">📋 Copy Split for GPay</button>
@@ -732,7 +1113,7 @@ function renderCartonTab() {
     hist.innerHTML = appData.history.map((h, i) => {
       const { lines, total } = generateSplit(h);
       return `
-      <div class="carton-card closed" onclick="toggleCartonBody(${i})">
+      <div class="carton-card closed" style="animation-delay:${i * 0.05}s" onclick="toggleCartonBody(${i})">
         <div class="carton-head">
           <div>
             <div class="carton-title">Carton · ₹${h.price}</div>
@@ -741,8 +1122,10 @@ function renderCartonTab() {
           <div class="carton-amount">${fmt(total)}</div>
         </div>
         <div class="carton-body" id="carton-body-${i}">
-          <table><tbody>${lines.map(l => `<tr><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}</tbody></table>
-          <button class="btn-primary btn-sm" style="margin-top:12px;" onclick="event.stopPropagation(); copySplitForCarton(${i})">📋 Copy for GPay</button>
+          <div>
+            <table><tbody>${lines.map(l => `<tr><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}</tbody></table>
+            <button class="btn-primary btn-sm" style="margin-top:12px;" onclick="event.stopPropagation(); copySplitForCarton(${i})">📋 Copy for GPay</button>
+          </div>
         </div>
       </div>`;
     }).join('');
@@ -762,35 +1145,28 @@ function copySplitForCarton(idx) {
   const text = `${title}\nPer egg: ₹${(carton.price/carton.eggsTotal).toFixed(2)}\n\n` +
     lines.map(l => `${l.name}: ${l.eggs} eggs = ₹${l.amount.toFixed(2)}`).join('\n') +
     `\n\nTotal: ₹${total.toFixed(2)}`;
-  navigator.clipboard.writeText(text).then(() => alert('Copied! Paste into GPay.'));
+  navigator.clipboard.writeText(text).then(() => toast('Copied for GPay', 'success'));
 }
 
 function renderPeopleTab() {
-  const months = monthlyStats();
   const totals = {};
-  const addPerson = (name, eggs, amount) => {
+  const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
+  const add = (name, eggs, amount, cartonId, month) => {
     if (!totals[name]) totals[name] = { eggs: 0, amount: 0, cartons: new Set(), months: new Set() };
     totals[name].eggs += eggs;
     totals[name].amount += amount;
+    totals[name].cartons.add(cartonId);
+    totals[name].months.add(month);
   };
-  const rate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
   if (appData.currentCarton) {
     for (const [date, day] of Object.entries(appData.currentCarton.daily || {})) {
-      for (const [p, e] of Object.entries(day)) {
-        addPerson(p, e, e * rate);
-        totals[p].cartons.add(appData.currentCarton.id);
-        totals[p].months.add(monthKey(date));
-      }
+      for (const [p, e] of Object.entries(day)) add(p, e, e * rate, appData.currentCarton.id, monthKey(date));
     }
   }
   for (const h of appData.history) {
     const hRate = h.price / h.eggsTotal;
     for (const [date, day] of Object.entries(h.daily || {})) {
-      for (const [p, e] of Object.entries(day)) {
-        addPerson(p, e, e * hRate);
-        totals[p].cartons.add(h.id);
-        totals[p].months.add(monthKey(date));
-      }
+      for (const [p, e] of Object.entries(day)) add(p, e, e * hRate, h.id, monthKey(date));
     }
   }
   const grid = document.getElementById('peopleGrid');
@@ -799,8 +1175,8 @@ function renderPeopleTab() {
     grid.innerHTML = '<div class="empty">No data yet. Add entries to see person summaries.</div>';
     return;
   }
-  grid.innerHTML = entries.map(([name, t]) => `
-    <div class="person-card">
+  grid.innerHTML = entries.map(([name, t], i) => `
+    <div class="person-card" style="animation-delay:${i * 0.05}s">
       <div class="name">${name} <span style="font-size:11px; color:var(--text-dim); font-weight:500;">${t.cartons.size} carton${t.cartons.size!==1?'s':''}</span></div>
       <div class="metrics">
         <div class="metric"><div class="metric-label">Eggs</div><div class="metric-value">${t.eggs}</div></div>
@@ -834,11 +1210,10 @@ function renderReports() {
         <div class="stat warning"><div class="stat-label">People</div><div class="stat-value">${m.people.size}</div></div>
       </div>
       <table><thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead><tbody>
-        ${lines.map(([n, e]) => `<tr><td>${n}</td><td class="num">${e}</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}
+        ${lines.map(([n, e], i) => `<tr style="animation-delay:${i * 0.03}s"><td>${n}</td><td class="num">${e}</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}
       </tbody></table>`;
   }
 
-  // Leaderboard (all time)
   const allTime = {};
   const allRate = appData.currentCarton.price / appData.currentCarton.eggsTotal;
   if (appData.currentCarton) {
@@ -856,7 +1231,10 @@ function renderReports() {
   const lbEl = document.getElementById('leaderboard');
   if (!lb.length) lbEl.innerHTML = '<div class="empty">No data</div>';
   else lbEl.innerHTML = `<table><tbody>${lb.map(([n, amt], i) => `
-    <tr><td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span>${n}</td><td class="amount" style="text-align:right;">${fmt(amt)}</td></tr>
+    <tr style="animation-delay:${i * 0.04}s">
+      <td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span>${n}</td>
+      <td class="amount" style="text-align:right;">${fmt(amt)}</td>
+    </tr>
   `).join('')}</tbody></table>`;
 }
 </script>
