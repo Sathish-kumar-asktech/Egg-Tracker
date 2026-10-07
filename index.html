@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Egg Tracker</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; margin: 0; padding: 16px; background: #f5f7fa; color: #1a1a1a; }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 12px; color: #333; text-transform: uppercase; letter-spacing: .5px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
+  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .stat { background: #eef4ff; border-radius: 8px; padding: 12px; text-align: center; }
+  .stat .val { font-size: 22px; font-weight: 700; color: #2563eb; }
+  .stat .lbl { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: .5px; }
+  input, button, select { font-family: inherit; font-size: 14px; }
+  input[type=text], input[type=number], input[type=date], select {
+    padding: 9px 11px; border: 1px solid #d0d7de; border-radius: 6px; width: 100%; background: #fff;
+  }
+  button { padding: 9px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #e5e7eb; color: #333; }
+  .btn-danger { background: #ef4444; color: #fff; padding: 6px 10px; font-size: 12px; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+  .row input { flex: 1; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 11px 8px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+  th { background: #f9fafb; font-weight: 600; font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: .3px; }
+  .amount { font-weight: 700; color: #059669; }
+  .progress { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin: 12px 0; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #2563eb, #10b981); transition: width .3s; }
+  .hidden { display: none !important; }
+  .login-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.96); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .login-card { text-align: center; padding: 40px; background: #fff; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.1); }
+  .history-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+  .history-item .title { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+  .history-item .meta { font-size: 12px; color: #666; }
+  .report-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 14px; margin-top: 10px; }
+  .report-box .rep-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
+  .report-box .rep-line.total { font-weight: 700; border-top: 1px solid #86efac; margin-top: 6px; padding-top: 10px; }
+  .empty { text-align: center; color: #999; padding: 16px; font-size: 13px; }
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 10px; flex-wrap: wrap; }
+  .inline-edit { display: flex; gap: 6px; align-items: center; }
+  .inline-edit input { width: 100px; }
+  .tag { display: inline-block; background: #eef4ff; color: #2563eb; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 6px; }
+  .entry-grid { display: grid; gap: 8px; }
+  .entry-row { display: grid; grid-template-columns: 1fr 90px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .entry-row label { font-size: 14px; }
+  .date-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .date-bar input { max-width: 180px; }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <h1>🥚 Egg Tracker</h1>
+    <p class="sub">Admin sign-in (Google Drive sync)</p>
+    <button id="signInBtn" class="btn-primary" style="margin-top:10px;">Sign in with Google</button>
+  </div>
+</div>
+
+<div class="container hidden" id="appContent">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div>
+      <h1>🥚 Egg Tracker</h1>
+      <div class="sub" id="userEmail"></div>
+    </div>
+    <button class="btn-secondary btn-sm" onclick="signOut()">Sign Out</button>
+  </div>
+
+  <!-- Current Carton -->
+  <div class="card">
+    <div class="section-head">
+      <h2 style="margin:0;">Current Carton</h2>
+      <div class="inline-edit">
+        <label style="font-size:12px; color:#666;">Price ₹</label>
+        <input type="number" id="cartonPriceInput" step="0.01">
+        <button class="btn-primary btn-sm" onclick="updatePrice()">Save</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="val" id="statUsed">0</div><div class="lbl">Used</div></div>
+      <div class="stat"><div class="val" id="statLeft">30</div><div class="lbl">Left</div></div>
+      <div class="stat"><div class="val" id="statRate">₹0</div><div class="lbl">Per Egg</div></div>
+    </div>
+
+    <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  </div>
+
+  <!-- Daily Entry -->
+  <div class="card">
+    <h2>Add Daily Entry</h2>
+    <div class="date-bar">
+      <input type="date" id="entryDate">
+      <button class="btn-primary btn-sm" onclick="loadDateForEdit()">Load Date</button>
+      <button class="btn-secondary btn-sm" onclick="clearEntryForm()">Clear</button>
+    </div>
+    <div id="entryList" class="entry-grid"></div>
+    <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+      <button class="btn-primary" onclick="saveDailyEntry()">💾 Save Day</button>
+      <button class="btn-secondary" onclick="addNewPerson()">+ Add Person</button>
+    </div>
+    <div id="dailyTotals" class="sub" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- Current Split -->
+  <div class="card">
+    <h2>Split for Current Carton</h2>
+    <table id="currentTable">
+      <thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="currentReport"></div>
+    <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+      <button class="btn-primary btn-sm" onclick="showCurrentReport()">📋 Split Report</button>
+      <button class="btn-secondary btn-sm" onclick="closeCarton()">✓ Close Carton</button>
+    </div>
+  </div>
+
+  <!-- Past Cartons -->
+  <div class="card">
+    <h2>Past Cartons</h2>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID = 'YOUR_CLIENT_ID';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+const FOLDER_NAME = 'EggTrackerApp';
+const DATA_FILE = 'egg_data.json';
+
+let accessToken = null, tokenClient = null;
+let appData = {
+  people: [],
+  currentCarton: null,
+  history: []
+};
+
+// ---------- INIT ----------
+window.onload = () => {
+  const wait = setInterval(() => {
+    if (typeof google !== 'undefined' && google.accounts) {
+      clearInterval(wait);
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: async (r) => {
+          if (r?.access_token) {
+            accessToken = r.access_token;
+            await onSignIn();
+          }
+        }
+      });
+      document.getElementById('signInBtn').onclick = () => tokenClient.requestAccessToken({ prompt: 'consent' });
+    }
+  }, 100);
+  // Default entry date = today
+  document.getElementById('entryDate').value = new Date().toISOString().slice(0,10);
+};
+
+async function onSignIn() {
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appContent').classList.remove('hidden');
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
+    if (r.ok) { const info = await r.json(); document.getElementById('userEmail').textContent = info.email; }
+  } catch(e) {}
+  await loadData();
+  if (!appData.currentCarton) createNewCarton();
+  if (appData.people.length === 0) {
+    appData.people = ['David', 'Prakash', 'Naveen', 'Guru', 'Harini', 'Logesh', 'Sathish', 'Gunesh', 'Yogi', 'Mari'];
+    await saveData();
+  }
+  render();
+  buildEntryForm();
+}
+
+function signOut() {
+  if (accessToken) google.accounts.oauth2.revoke(accessToken, () => {});
+  accessToken = null;
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('appContent').classList.add('hidden');
+}
+
+// ---------- DRIVE ----------
+async function getFolderId() {
+  const q = `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${accessToken}` } });
+  const d = await r.json();
+  if (d.files?.length) return d.files[0].id;
+  const c = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
+  });
+  return (await c.json()).id;
+}
+
+async function getFileId(folderId) {
+  const q = `name='${DATA_FILE}' and '${folderId}' in parents and trashed=false`;
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${accessToken}` } });
+  const d = await r.json();
+  return d.files?.length ? d.files[0].id : null;
+}
+
+async function loadData() {
+  try {
+    const folderId = await getFolderId();
+    const fileId = await getFileId(folderId);
+    if (fileId) {
+      const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${accessToken}` } });
+      if (r.ok) appData = { ...appData, ...(await r.json()) };
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function saveData() {
+  if (!accessToken) return;
+  try {
+    const folderId = await getFolderId();
+    const fileId = await getFileId(folderId);
+    const meta = { name: DATA_FILE, mimeType: 'application/json' };
+    if (!fileId) meta.parents = [folderId];
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
+    form.append('file', new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
+    const url = fileId
+      ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+      : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+    await fetch(url, { method: fileId ? 'PATCH' : 'POST', headers: { Authorization: `Bearer ${accessToken}` }, body: form });
+  } catch(e) { console.error('save err', e); }
+}
+
+// ---------- CARTON LOGIC ----------
+function createNewCarton() {
+  appData.currentCarton = {
+    id: 'carton_' + Date.now(),
+    price: 195,
+    eggsTotal: 30,
+    eggsUsed: 0,
+    startDate: new Date().toISOString().slice(0,10),
+    consumption: {},        // total per person across carton
+    daily: {}               // { "2026-10-07": { "David": 2 } }
+  };
+  saveData();
+}
+
+function updatePrice() {
+  const p = parseFloat(document.getElementById('cartonPriceInput').value);
+  if (p > 0) { appData.currentCarton.price = p; saveData(); render(); }
+}
+
+function closeCarton() {
+  const c = appData.currentCarton;
+  if (c.eggsUsed === 0) return alert('No eggs used yet.');
+  if (!confirm(`Close this carton with ${c.eggsUsed}/30 eggs used?`)) return;
+  c.endDate = new Date().toISOString().slice(0,10);
+  appData.history.unshift(c);
+  createNewCarton();
+  render();
+  buildEntryForm();
+}
+
+// ---------- DAILY ENTRY ----------
+function buildEntryForm() {
+  const wrap = document.getElementById('entryList');
+  wrap.innerHTML = appData.people.map(p => `
+    <div class="entry-row">
+      <label>${p}</label>
+      <input type="number" min="0" data-person="${p}" placeholder="0">
+    </div>
+  `).join('');
+  wrap.querySelectorAll('input').forEach(i => i.addEventListener('input', updateDailyTotals));
+  updateDailyTotals();
+}
+
+function loadDateForEdit() {
+  const date = document.getElementById('entryDate').value;
+  if (!date) return alert('Pick a date first.');
+  const day = appData.currentCarton.daily?.[date] || {};
+  document.querySelectorAll('#entryList input').forEach(i => {
+    i.value = day[i.dataset.person] ?? '';
+  });
+  updateDailyTotals();
+}
+
+function clearEntryForm() {
+  document.querySelectorAll('#entryList input').forEach(i => i.value = '');
+  updateDailyTotals();
+}
+
+function updateDailyTotals() {
+  let sum = 0;
+  document.querySelectorAll('#entryList input').forEach(i => sum += parseInt(i.value) || 0);
+  const c = appData.currentCarton;
+  document.getElementById('dailyTotals').textContent =
+    `This day: ${sum} eggs · Carton used: ${c.eggsUsed}/30 · Remaining: ${Math.max(0, 30 - c.eggsUsed)}`;
+}
+
+function saveDailyEntry() {
+  const date = document.getElementById('entryDate').value;
+  if (!date) return alert('Pick a date.');
+  const c = appData.currentCarton;
+  if (!c.daily) c.daily = {};
+  const day = {};
+  let dayTotal = 0;
+  document.querySelectorAll('#entryList input').forEach(i => {
+    const v = parseInt(i.value) || 0;
+    if (v > 0) { day[v > 0 ? i.dataset.person : ''] = v; day[i.dataset.person] = v; dayTotal += v; }
+  });
+  // Recompute carton totals from all daily entries
+  const oldDay = c.daily[date] || {};
+  const oldTotal = Object.values(oldDay).reduce((a,b) => a+b, 0);
+  const newUsed = c.eggsUsed - oldTotal + dayTotal;
+  if (newUsed > 30) return alert(`That would exceed 30 eggs. Current used: ${c.eggsUsed}, this day would add ${dayTotal - oldTotal} more.`);
+  c.daily[date] = day;
+  // Rebuild consumption from daily
+  c.consumption = {};
+  for (const d of Object.values(c.daily)) {
+    for (const [p, v] of Object.entries(d)) {
+      c.consumption[p] = (c.consumption[p] || 0) + v;
+    }
+  }
+  c.eggsUsed = Object.values(c.consumption).reduce((a,b) => a+b, 0);
+  saveData();
+  render();
+  updateDailyTotals();
+  alert(`Saved ${date}: ${dayTotal} eggs`);
+}
+
+function addNewPerson() {
+  const name = prompt('Person name:');
+  if (!name) return;
+  if (appData.people.includes(name)) return alert('Already exists.');
+  appData.people.push(name);
+  saveData();
+  render();
+  buildEntryForm();
+}
+
+// ---------- REPORTS ----------
+function generateSplit(carton) {
+  const rate = carton.price / carton.eggsTotal;
+  const lines = [];
+  let total = 0;
+  for (const [name, eggs] of Object.entries(carton.consumption)) {
+    const amt = eggs * rate;
+    total += amt;
+    lines.push({ name, eggs, amount: amt });
+  }
+  lines.sort((a,b) => b.amount - a.amount);
+  return { rate, lines, total };
+}
+
+function showCurrentReport() {
+  const el = document.getElementById('currentReport');
+  if (el.dataset.open === '1') { el.innerHTML = ''; el.dataset.open = '0'; return; }
+  el.dataset.open = '1';
+  const { rate, lines, total } = generateSplit(appData.currentCarton);
+  if (!lines.length) { el.innerHTML = '<div class="empty">No eggs logged yet.</div>'; return; }
+  el.innerHTML = renderReport(lines, rate, total, appData.currentCarton);
+}
+
+function renderReport(lines, rate, total, carton) {
+  let html = `<div class="report-box">`;
+  html += `<div style="font-size:12px; color:#166534; margin-bottom:8px;">Per egg: ₹${rate.toFixed(2)} | Carton: ₹${carton.price} | ${carton.startDate}${carton.endDate ? ' → ' + carton.endDate : ''}</div>`;
+  for (const l of lines) {
+    html += `<div class="rep-line"><span>${l.name} — ${l.eggs} eggs</span><span class="amount">₹${l.amount.toFixed(2)}</span></div>`;
+  }
+  html += `<div class="rep-line total"><span>Total</span><span>₹${total.toFixed(2)}</span></div>`;
+  const text = `Egg Split (${carton.startDate}${carton.endDate ? ' to ' + carton.endDate : ''})\n` +
+    lines.map(l => `${l.name}: ${l.eggs} eggs = ₹${l.amount.toFixed(2)}`).join('\n') +
+    `\nTotal: ₹${total.toFixed(2)}`;
+  html += `<button class="btn-primary btn-sm" style="margin-top:10px;" onclick="copyText(${JSON.stringify(text)})">📋 Copy for GPay</button>`;
+  html += `</div>`;
+  return html;
+}
+
+function copyText(t) {
+  navigator.clipboard.writeText(t).then(() => alert('Copied! Paste into GPay/split notes.'));
+}
+
+// ---------- RENDER ----------
+function render() {
+  const c = appData.currentCarton;
+  document.getElementById('cartonPriceInput').value = c.price;
+  document.getElementById('statUsed').textContent = c.eggsUsed;
+  document.getElementById('statLeft').textContent = Math.max(0, 30 - c.eggsUsed);
+  document.getElementById('statRate').textContent = '₹' + (c.price / 30).toFixed(2);
+  document.getElementById('progressBar').style.width = (c.eggsUsed / 30 * 100) + '%';
+
+  const tbody = document.querySelector('#currentTable tbody');
+  const rate = c.price / 30;
+  const entries = Object.entries(c.consumption);
+  if (!entries.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty">No eggs logged yet.</td></tr>';
+  } else {
+    tbody.innerHTML = entries.map(([name, eggs]) => `
+      <tr>
+        <td>${name}</td>
+        <td>${eggs}</td>
+        <td class="amount">₹${(eggs * rate).toFixed(2)}</td>
+      </tr>`).join('');
+  }
+
+  const hist = document.getElementById('historyList');
+  if (!appData.history.length) {
+    hist.innerHTML = '<div class="empty">No past cartons yet.</div>';
+  } else {
+    hist.innerHTML = appData.history.map((h, i) => `
+      <div class="history-item">
+        <div class="title">Carton ${h.startDate} → ${h.endDate || '?'} <span class="tag">₹${h.price}</span></div>
+        <div class="meta">${h.eggsUsed}/30 eggs · ${Object.keys(h.consumption).length} people</div>
+        <button class="btn-secondary btn-sm" style="margin-top:8px;" onclick="toggleHistory(${i})">View Split</button>
+        <div id="hist-${i}"></div>
+      </div>`).join('');
+  }
+}
+
+function toggleHistory(i) {
+  const h = appData.history[i];
+  const el = document.getElementById(`hist-${i}`);
+  if (el.dataset.open === '1') { el.innerHTML = ''; el.dataset.open = '0'; return; }
+  el.dataset.open = '1';
+  const { rate, lines, total } = generateSplit(h);
+  el.innerHTML = renderReport(lines, rate, total, h);
+}
+</script>
+</body>
+</html>
