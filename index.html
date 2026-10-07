@@ -1,1318 +1,2357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<title>Antvarum · Egg Tracker</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<style>
-  :root {
-    /* Premium white + light green + yellow egg theme */
-    --bg: #f8faf7;
-    --surface: #ffffff;
-    --surface-2: #f0f7ed;
-    --surface-3: #e8f3e3;
-    --border: #d9e8d2;
-    --border-soft: #eef3ea;
-    --text: #1a2e1a;
-    --text-dim: #5a7055;
-    --text-muted: #9bae95;
-    /* Yellow egg (primary) */
-    --primary: #eab308;
-    --primary-hover: #ca8a04;
-    --primary-soft: #fef9c3;
-    --primary-glow: rgba(234, 179, 8, 0.35);
-    /* Light green (accent) */
-    --accent: #10b981;
-    --accent-hover: #059669;
-    --accent-soft: #d1fae5;
-    --accent-glow: rgba(16, 185, 129, 0.3);
-    /* Supporting */
-    --danger: #ef4444;
-    --danger-soft: #fee2e2;
-    --purple: #8b5cf6;
-    --purple-soft: #ede9fe;
-    --blue: #3b82f6;
-    --blue-soft: #dbeafe;
-    --radius: 16px;
-    --radius-sm: 10px;
-    --radius-lg: 20px;
-    --shadow-sm: 0 1px 2px rgba(26,46,26,.04), 0 1px 3px rgba(26,46,26,.03);
-    --shadow: 0 2px 8px rgba(26,46,26,.05), 0 4px 12px rgba(26,46,26,.04);
-    --shadow-md: 0 4px 16px rgba(26,46,26,.07), 0 8px 24px rgba(26,46,26,.05);
-    --shadow-lg: 0 12px 36px rgba(26,46,26,.1), 0 6px 16px rgba(26,46,26,.06);
-    --ease-spring: cubic-bezier(.34,1.56,.64,1);
-    --ease-smooth: cubic-bezier(.4,0,.2,1);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-top: env(safe-area-inset-top, 0px);
-    --sidebar-w: 260px;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; overscroll-behavior-y: none; min-height: 100vh; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: var(--bg); color: var(--text);
-    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
-    padding-bottom: calc(76px + var(--safe-bottom));
-  }
-
-  /* ============ EASTER EGG LOADER ============ */
-  .easter-animation { position: relative; width: 150px; height: 220px; margin: 0 auto; }
-  .easter-animation .egg {
-    position: relative; width: 150px; height: 200px;
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    background: linear-gradient(295deg, #fbbf24 15%, #86efac 15%, #86efac 30%, #fbbf24 30%, #fbbf24 49%, #86efac 49%, #86efac 70%, #fbbf24 70%);
-    overflow: hidden; animation: egg-bounce 1s linear infinite;
-  }
-  .easter-animation .egg:before, .easter-animation .egg:after { position: absolute; content: ""; }
-  .easter-animation .egg:before {
-    width: 200px; height: 100px; background-color: #10b981; top: 160px;
-    box-shadow: 0 -50px #fde68a, 0 -65px #86efac, 0 -90px #a7f3d0, 0 -95px #fde68a;
-  }
-  .easter-animation .egg:after {
-    border-radius: 50%; width: 15px; height: 15px; background-color: #fde68a;
-    left: 90px; top: 75px;
-    box-shadow: -40px 0 #fde68a, 40px 0 #fde68a, -80px 0 #fde68a, -120px 0 #fde68a;
-  }
-  .easter-animation .eyes {
-    position: absolute; background-color: #1a2e1a; border-radius: 50%;
-    width: 20px; height: 30px; left: 90px; top: 120px; box-shadow: 20px 0 #1a2e1a;
-  }
-  .easter-animation .eyes:before {
-    position: absolute; content: ""; background-color: #fff;
-    width: 5px; height: 12px; border-radius: 50%; left: 12px; top: 10px; box-shadow: 20px 0 #fff;
-  }
-  .easter-animation .eyes:after {
-    content: ""; position: absolute; width: 200px; height: 30px;
-    background-color: #10b981; top: -130px; left: -100px;
-  }
-  .easter-animation .shadow {
-    position: absolute; z-index: -1; background-color: rgba(16,185,129,.25);
-    width: 100px; height: 20px; border-radius: 50%;
-    left: 20px; top: 190px; animation: egg-shadow-move 1s linear infinite;
-  }
-  .easter-animation .clouds { position: absolute; width: 500px; left: 50%; transform: translateX(-50%); }
-  .easter-animation .cloud1, .easter-animation .cloud2, .easter-animation .cloud3 {
-    position: absolute; background-color: #ffffff; width: 100px; height: 25px;
-    border-radius: 100px; opacity: .9; box-shadow: 0 2px 8px rgba(16,185,129,.15);
-  }
-  .easter-animation .cloud1:before, .easter-animation .cloud2:before, .easter-animation .cloud3:before {
-    position: absolute; content: ""; width: 40px; height: 40px; top: -20px; left: 20px;
-    background-color: #ffffff; border-radius: 50%;
-  }
-  .easter-animation .cloud1 { top: -150px; z-index: -1; animation: egg-clouds 2s linear infinite; }
-  .easter-animation .cloud2 { top: -70px; opacity: .5; transform: scale(.7); animation: egg-clouds 1.8s linear infinite; }
-  .easter-animation .cloud3 { top: -100px; opacity: .5; transform: scale(.9); animation: egg-clouds 1.5s linear infinite; z-index: -2; }
-
-  @keyframes egg-bounce {
-    0% { transform: scale(1,1) translateY(0); }
-    10% { transform: scale(1.1,.9) translateY(0); }
-    30% { transform: scale(.9,1.1) translateY(-70px) translateX(30px); }
-    50% { transform: scale(1.05,.95) translateY(0) translateX(30px) rotate(-10deg); }
-    58% { transform: scale(1,1) translateY(-7px) translateX(0); }
-    65% { transform: scale(1,1) translateY(0); }
-    100% { transform: scale(1,1) translateY(0); }
-  }
-  @keyframes egg-shadow-move {
-    0% { transform: translateX(0); }
-    10% { transform: translateX(0) scale(.8); }
-    30% { transform: translateX(0) scale(.8); }
-    50% { transform: translateX(30px) scale(.7); }
-    58% { transform: translateX(20px); }
-    65% { transform: translateX(0); }
-    100% { transform: translateX(0); }
-  }
-  @keyframes egg-clouds { from { left: 500px; } to { left: -500px; } }
-
-  .easter-animation.small { width: 40px; height: 60px; }
-  .easter-animation.small .egg { width: 40px; height: 54px; animation-duration: .8s; }
-  .easter-animation.small .egg:before { width: 60px; height: 26px; top: 44px; box-shadow: 0 -14px #fde68a, 0 -18px #86efac, 0 -24px #a7f3d0, 0 -26px #fde68a; }
-  .easter-animation.small .egg:after { width: 4px; height: 4px; left: 24px; top: 20px; box-shadow: -10px 0 #fde68a, 10px 0 #fde68a, -20px 0 #fde68a, -30px 0 #fde68a; }
-  .easter-animation.small .eyes { width: 5px; height: 8px; left: 24px; top: 32px; box-shadow: 5px 0 #1a2e1a; }
-  .easter-animation.small .eyes:before { width: 2px; height: 3px; left: 3px; top: 2px; box-shadow: 5px 0 #fff; }
-  .easter-animation.small .eyes:after { width: 60px; height: 8px; top: -35px; left: -27px; }
-  .easter-animation.small .shadow { width: 26px; height: 5px; left: 7px; top: 52px; animation-duration: .8s; }
-  .easter-animation.small .clouds { display: none; }
-
-  /* ============ ANIMATIONS ============ */
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes scaleIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
-  @keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: .7; } }
-  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
-  @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
-  @keyframes slideInTopRight { from { opacity: 0; transform: translate(120%, -20%); } to { opacity: 1; transform: translate(0, 0); } }
-  @keyframes slideOutTopRight { to { opacity: 0; transform: translate(120%, -20%); } }
-  @keyframes bounceIn { 0% { opacity: 0; transform: scale(.3); } 50% { opacity: 1; transform: scale(1.06); } 70% { transform: scale(.96); } 100% { transform: scale(1); } }
-  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ============ LAYOUT — FULL SCREEN ============ */
-  .app-shell { display: flex; min-height: 100vh; width: 100%; }
-
-  /* Desktop sidebar */
-  .sidebar {
-    display: none;
-    width: var(--sidebar-w);
-    background: var(--surface);
-    border-right: 1px solid var(--border-soft);
-    padding: 24px 16px;
-    position: sticky; top: 0;
-    height: 100vh;
-    flex-direction: column;
-    flex-shrink: 0;
-  }
-  .sidebar .brand {
-    display: flex; align-items: center; gap: 12px;
-    padding: 0 8px 20px;
-    border-bottom: 1px solid var(--border-soft);
-    margin-bottom: 20px;
-  }
-  .sidebar .brand-icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg, #fde047, #eab308);
-    display: flex; align-items: center; justify-content: center; font-size: 24px;
-    box-shadow: 0 4px 14px var(--primary-glow);
-    flex-shrink: 0;
-  }
-  .sidebar .brand-text h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.4px; }
-  .sidebar .brand-text p { margin: 2px 0 0; font-size: 11px; color: var(--text-dim); }
-  .sidebar .nav-list { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-  .sidebar .nav-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 14px; border-radius: 10px;
-    background: transparent; border: none; cursor: pointer;
-    color: var(--text-dim); font-family: inherit; font-size: 14px; font-weight: 600;
-    text-align: left; width: 100%;
-    transition: all .2s var(--ease-smooth);
-  }
-  .sidebar .nav-item:hover { background: var(--surface-2); color: var(--text); }
-  .sidebar .nav-item.active {
-    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-    color: #065f46;
-    box-shadow: 0 2px 8px var(--accent-glow);
-  }
-  .sidebar .nav-item .ico { font-size: 18px; }
-  .sidebar .user-box {
-    margin-top: auto;
-    padding: 12px;
-    background: var(--surface-2);
-    border-radius: 12px;
-    border: 1px solid var(--border-soft);
-  }
-  .sidebar .user-box .u-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .sidebar .user-box .u-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-  .sidebar .user-box .u-email {
-    font-size: 11px; color: var(--text-dim); font-weight: 600;
-    word-break: break-all; line-height: 1.3;
-  }
-  .sidebar .user-box .u-sync { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-  .sidebar .user-box .u-out {
-    width: 100%; margin-top: 10px;
-    padding: 8px; font-size: 12px;
-    background: #fff; border: 1px solid var(--border);
-    border-radius: 8px; cursor: pointer; color: var(--text);
-    font-family: inherit; font-weight: 600;
-    transition: all .2s;
-  }
-  .sidebar .user-box .u-out:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
-
-  /* Main content */
-  .main {
-    flex: 1;
-    min-width: 0;
-    padding: 0 16px calc(20px + var(--safe-bottom));
-    width: 100%;
-  }
-  .mobile-topbar {
-    position: sticky; top: 0; z-index: 40;
-    margin: 0 -16px 16px;
-    padding: calc(12px + var(--safe-top)) 16px 12px;
-    background: rgba(255,255,255,.9);
-    backdrop-filter: saturate(180%) blur(12px);
-    -webkit-backdrop-filter: saturate(180%) blur(12px);
-    border-bottom: 1px solid var(--border-soft);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .mobile-topbar .brand { display: flex; align-items: center; gap: 10px; }
-  .mobile-topbar .brand-icon {
-    width: 40px; height: 40px; border-radius: 12px;
-    background: linear-gradient(135deg, #fde047, #eab308);
-    display: flex; align-items: center; justify-content: center; font-size: 22px;
-    box-shadow: 0 4px 14px var(--primary-glow);
-  }
-  .mobile-topbar .brand-text h1 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.4px; }
-  .mobile-topbar .brand-text p { margin: 0; font-size: 11px; color: var(--text-dim); }
-  .mobile-topbar .user-chip {
-    display: flex; align-items: center; gap: 6px;
-    background: #fff; padding: 6px 12px; border-radius: 100px;
-    font-size: 11px; color: var(--text-dim); border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm); cursor: pointer;
-  }
-  .mobile-topbar .user-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-
-  /* Bottom nav */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
-    background: rgba(255,255,255,.94);
-    backdrop-filter: saturate(180%) blur(14px);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
-    border-top: 1px solid var(--border-soft);
-    padding: 6px 8px calc(6px + var(--safe-bottom));
-    display: flex; justify-content: space-around; align-items: center;
-    box-shadow: 0 -2px 20px rgba(26,46,26,.04);
-  }
-  .nav-btn {
-    flex: 1; max-width: 90px; background: transparent; border: none; cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    padding: 8px 4px; border-radius: 12px; color: var(--text-muted); font-family: inherit;
-    transition: color .2s, transform .15s var(--ease-spring);
-    position: relative;
-  }
-  .nav-btn:active { transform: scale(.92); }
-  .nav-btn .ico { font-size: 20px; transition: transform .3s var(--ease-spring); }
-  .nav-btn .lbl { font-size: 10px; font-weight: 700; letter-spacing: .2px; }
-  .nav-btn.active { color: var(--accent-hover); }
-  .nav-btn.active .ico { transform: translateY(-2px) scale(1.15); }
-  .nav-btn.active::after {
-    content: ''; position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
-    width: 20px; height: 3px; border-radius: 3px; background: var(--accent);
-  }
-
-  /* ============ CARDS ============ */
-  .content { max-width: 1200px; margin: 0 auto; }
-  .grid-cards { display: grid; gap: 14px; grid-template-columns: 1fr; }
-  @media (min-width: 900px) {
-    .grid-cards.two { grid-template-columns: 1fr 1fr; }
-  }
-  .card {
-    background: var(--surface); border-radius: var(--radius);
-    padding: 20px;
-    border: 1px solid var(--border-soft);
-    box-shadow: var(--shadow);
-    animation: fadeUp .45s var(--ease-smooth) both;
-    transition: transform .25s var(--ease-smooth), box-shadow .25s;
-  }
-  .card:hover { box-shadow: var(--shadow-md); }
-  .card-title {
-    font-size: 12px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .8px; color: var(--text-dim); margin: 0 0 16px;
-    display: flex; justify-content: space-between; align-items: center;
-    gap: 10px; flex-wrap: wrap;
-  }
-  .card-title .badge {
-    text-transform: none; letter-spacing: 0; font-size: 11px;
-    background: var(--accent-soft); color: var(--accent-hover);
-    padding: 4px 10px; border-radius: 100px; font-weight: 700;
-  }
-  .badge.warning { background: var(--primary-soft); color: var(--primary-hover); }
-  .badge.success { background: var(--accent-soft); color: #047857; }
-  .badge.accent { background: var(--blue-soft); color: #1d4ed8; }
-  .badge.purple { background: var(--purple-soft); color: #6d28d9; }
-
-  /* ============ STATS ============ */
-  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  @media (min-width: 700px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } }
-  .stat {
-    background: linear-gradient(135deg, #f8fbf6, #f0f7ed);
-    border-radius: var(--radius-sm);
-    padding: 16px; position: relative; overflow: hidden;
-    border: 1px solid var(--border-soft);
-    transition: transform .25s var(--ease-spring), box-shadow .2s;
-    animation: scaleIn .5s var(--ease-spring) both;
-  }
-  .stat:active { transform: scale(.97); }
-  .stat:hover { box-shadow: var(--shadow); }
-  .stat::before {
-    content: ''; position: absolute; top: 0; left: 0;
-    width: 4px; height: 100%; background: var(--accent);
-  }
-  .stat.primary::before { background: var(--primary); }
-  .stat.primary { background: linear-gradient(135deg, #fffbeb, #fef9c3); }
-  .stat.success::before { background: var(--accent); }
-  .stat.success { background: linear-gradient(135deg, #f0fdf4, #d1fae5); }
-  .stat.purple::before { background: var(--purple); }
-  .stat.purple { background: linear-gradient(135deg, #faf5ff, #ede9fe); }
-  .stat.accent::before { background: var(--blue); }
-  .stat.accent { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
-  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-dim); margin-bottom: 6px; font-weight: 700; }
-  .stat-value { font-size: 26px; font-weight: 800; letter-spacing: -.5px; line-height: 1.05; color: var(--text); font-variant-numeric: tabular-nums; }
-  .stat.primary .stat-value { color: var(--primary-hover); }
-  .stat.success .stat-value { color: #047857; }
-  .stat.purple .stat-value { color: #6d28d9; }
-  .stat.accent .stat-value { color: #1d4ed8; }
-  .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; font-weight: 500; }
-
-  /* ============ PROGRESS ============ */
-  .progress-wrap { margin-top: 16px; }
-  .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
-  .progress { height: 10px; background: var(--border-soft); border-radius: 100px; overflow: hidden; position: relative; }
-  .progress-bar {
-    height: 100%; border-radius: 100px;
-    background: linear-gradient(90deg, #86efac, #10b981, #eab308);
-    background-size: 200% 100%;
-    animation: gradientShift 3s linear infinite;
-    transition: width .8s var(--ease-spring); position: relative;
-    box-shadow: 0 0 12px var(--accent-glow);
-  }
-  .progress-bar::after {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
-    background-size: 200% 100%; animation: shimmer 2s infinite;
-  }
-
-  /* ============ BUTTONS ============ */
-  button {
-    position: relative; overflow: hidden;
-    font-family: inherit; font-size: 14px; font-weight: 700;
-    padding: 12px 20px; border: none; border-radius: 12px;
-    cursor: pointer; letter-spacing: -.1px;
-    transition: transform .15s var(--ease-spring), background .2s, box-shadow .2s;
-    min-height: 44px; touch-action: manipulation;
-  }
-  button:active { transform: scale(.96); }
-  button:disabled { opacity: .5; cursor: not-allowed; }
-  .btn-primary { background: linear-gradient(135deg, #fde047, #eab308); color: #422006; box-shadow: 0 4px 14px var(--primary-glow); }
-  .btn-primary:hover { box-shadow: 0 6px 20px var(--primary-glow); }
-  .btn-accent { background: linear-gradient(135deg, #34d399, #10b981); color: #fff; box-shadow: 0 4px 14px var(--accent-glow); }
-  .btn-danger { background: linear-gradient(135deg, #f87171, #ef4444); color: #fff; }
-  .btn-ghost { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
-  .btn-ghost:active { background: var(--surface-2); }
-  .btn-sm { padding: 8px 14px; font-size: 12px; min-height: 36px; border-radius: 10px; }
-  .btn-block { width: 100%; }
-  .ripple { position: absolute; border-radius: 50%; background: rgba(255,255,255,.6); transform: scale(0); pointer-events: none; animation: ripple .6s linear; }
-  .btn-ghost .ripple { background: rgba(16,185,129,.2); }
-
-  /* ============ FORMS ============ */
-  input, select {
-    font-family: inherit; font-size: 15px; width: 100%;
-    padding: 12px 14px; border: 1.5px solid var(--border);
-    border-radius: 12px; background: #fff; color: var(--text);
-    transition: border-color .2s, box-shadow .2s;
-    min-height: 46px; -webkit-appearance: none; appearance: none;
-  }
-  input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
-  input::placeholder { color: var(--text-muted); }
-  select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a7055' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
-  }
-  .form-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-  .form-row input, .form-row select { flex: 1; min-width: 120px; }
-  .form-row .btn-sm { flex-shrink: 0; }
-  .field-label { font-size: 12px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: .4px; }
-
-  /* ============ TABLES ============ */
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 12px 10px; text-align: left; font-size: 14px; }
-  th { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-dim); font-weight: 700; border-bottom: 1.5px solid var(--border); background: var(--surface-2); }
-  td { border-bottom: 1px solid var(--border-soft); }
-  tr:last-child td { border-bottom: none; }
-  tbody tr { animation: fadeUp .35s var(--ease-smooth) both; }
-  tbody tr:nth-child(1) { animation-delay: .02s; } tbody tr:nth-child(2) { animation-delay: .05s; }
-  tbody tr:nth-child(3) { animation-delay: .08s; } tbody tr:nth-child(4) { animation-delay: .11s; }
-  tbody tr:nth-child(5) { animation-delay: .14s; } tbody tr:nth-child(n+6) { animation-delay: .17s; }
-  tbody tr:hover td { background: var(--surface-2); }
-  .amount { font-weight: 800; color: #047857; font-variant-numeric: tabular-nums; }
-  .num { font-variant-numeric: tabular-nums; }
-  .rank {
-    display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center;
-    background: var(--surface-2); border-radius: 50%; font-size: 11px; font-weight: 800;
-    color: var(--text-dim); margin-right: 8px;
-    transition: transform .3s var(--ease-spring);
-  }
-  tr:hover .rank { transform: scale(1.15) rotate(-5deg); }
-  .rank.gold { background: linear-gradient(135deg, #fde047, #eab308); color: #422006; box-shadow: 0 2px 8px var(--primary-glow); }
-  .rank.silver { background: linear-gradient(135deg, #e5e7eb, #9ca3af); color: #fff; }
-  .rank.bronze { background: linear-gradient(135deg, #fdba74, #ea580c); color: #fff; }
-
-  /* ============ ENTRY ============ */
-  .entry-list { display: grid; grid-template-columns: 1fr; gap: 8px; }
-  @media (min-width: 700px) { .entry-list { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1100px) { .entry-list { grid-template-columns: repeat(3, 1fr); } }
-  .entry-row {
-    display: grid; grid-template-columns: 1fr 90px; gap: 10px; align-items: center;
-    padding: 10px 14px; background: var(--surface-2); border-radius: var(--radius-sm);
-    border: 1.5px solid transparent;
-    animation: fadeUp .4s var(--ease-smooth) both;
-    transition: border-color .2s, background .2s;
-  }
-  .entry-row:focus-within { border-color: var(--accent); background: #fff; }
-  .entry-row label { font-size: 14px; font-weight: 600; }
-  .entry-row input { padding: 8px 10px; text-align: center; font-weight: 700; min-height: 40px; }
-
-  /* ============ PURCHASE CARDS ============ */
-  .carton-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 16px; margin-bottom: 10px;
-    border: 1px solid var(--border-soft);
-    border-left: 4px solid var(--accent);
-    cursor: pointer;
-    animation: fadeUp .4s var(--ease-smooth) both;
-    transition: transform .25s var(--ease-spring), box-shadow .2s, border-color .2s;
-  }
-  .carton-card:hover { box-shadow: var(--shadow-md); transform: translateX(2px); }
-  .carton-card.active-purchase {
-    border-left-color: var(--primary);
-    background: linear-gradient(135deg, #fffef5, #fefce8);
-    box-shadow: 0 4px 16px var(--primary-glow);
-  }
-  .carton-card.closed { border-left-color: var(--accent); }
-  .carton-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 10px; }
-  .carton-title { font-size: 14px; font-weight: 800; color: var(--text); }
-  .carton-meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
-  .carton-amount { font-size: 17px; font-weight: 800; color: #047857; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .carton-body {
-    margin-top: 0; padding-top: 0; border-top: 1px solid var(--border-soft);
-    display: grid; grid-template-rows: 0fr;
-    transition: grid-template-rows .4s var(--ease-smooth), padding-top .4s, margin-top .4s;
-  }
-  .carton-body > div { overflow: hidden; }
-  .carton-body.open { grid-template-rows: 1fr; padding-top: 12px; margin-top: 12px; }
-
-  /* ============ PERSON CARDS ============ */
-  .person-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  @media (min-width: 700px) { .person-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 1100px) { .person-grid { grid-template-columns: repeat(3, 1fr); } }
-  .person-card {
-    background: linear-gradient(135deg, #ffffff, #f8fbf6);
-    border-radius: var(--radius);
-    padding: 18px;
-    display: flex; flex-direction: column; gap: 14px;
-    border: 1px solid var(--border-soft);
-    animation: scaleIn .45s var(--ease-spring) both;
-    transition: transform .25s var(--ease-spring), box-shadow .25s, border-color .2s;
-  }
-  .person-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--accent); }
-  .person-card .name { font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .person-card .name .tagline { font-size: 11px; color: var(--text-dim); font-weight: 500; }
-  .person-card .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .person-card .metric { background: #fff; border-radius: var(--radius-sm); padding: 10px 8px; text-align: center; border: 1px solid var(--border-soft); }
-  .person-card .metric-label { color: var(--text-dim); font-size: 9px; text-transform: uppercase; letter-spacing: .3px; font-weight: 700; }
-  .person-card .metric-value { font-weight: 800; margin-top: 3px; font-size: 14px; font-variant-numeric: tabular-nums; }
-
-  .empty {
-    text-align: center; color: var(--text-dim); padding: 40px 20px; font-size: 14px;
-    animation: fadeUp .5s var(--ease-smooth) both;
-  }
-  .empty::before { content: '🥚'; display: block; font-size: 48px; margin-bottom: 12px; opacity: .8; }
-
-  /* ============ LOGIN ============ */
-  .login-overlay {
-    position: fixed; inset: 0; z-index: 100;
-    background: linear-gradient(160deg, #ffffff 0%, #f0fdf4 50%, #fef9c3 100%);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px; overflow-y: auto;
-    transition: opacity .4s, visibility .4s;
-  }
-  .login-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-  .login-card {
-    text-align: center; padding: 28px 28px 32px; background: #fff;
-    border-radius: 28px;
-    box-shadow: 0 20px 50px rgba(16,185,129,.15), 0 10px 24px rgba(26,46,26,.08);
-    border: 1px solid var(--border-soft);
-    max-width: 420px; width: 100%;
-    animation: bounceIn .8s var(--ease-spring) both;
-    margin: auto;
-  }
-  .login-card .logo-loader { margin: 0 auto 8px; }
-  .login-card h1 {
-    margin: 4px 0 6px; font-size: 28px; font-weight: 800; letter-spacing: -.8px;
-    background: linear-gradient(135deg, #10b981, #eab308);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-  .login-card .subtitle { margin: 0 0 22px; color: var(--text-dim); font-size: 13px; }
-  .login-tabs {
-    display: flex; background: var(--surface-2); border-radius: 12px;
-    padding: 4px; margin-bottom: 18px; gap: 4px;
-  }
-  .login-tab {
-    flex: 1; padding: 10px; background: transparent; border: none;
-    font-size: 13px; font-weight: 700; color: var(--text-dim);
-    border-radius: 8px; cursor: pointer;
-    transition: all .25s var(--ease-smooth); min-height: 40px;
-  }
-  .login-tab.active {
-    background: #fff; color: var(--accent-hover);
-    box-shadow: 0 2px 8px rgba(16,185,129,.15);
-  }
-  .auth-form { text-align: left; }
-  .auth-form input { margin-bottom: 10px; }
-  .auth-msg {
-    font-size: 12px; padding: 10px 12px; border-radius: 10px;
-    margin-bottom: 10px; font-weight: 600; text-align: left;
-    animation: scaleIn .3s var(--ease-spring) both;
-  }
-  .auth-msg.error { background: var(--danger-soft); color: #991b1b; }
-  .auth-msg.success { background: var(--accent-soft); color: #047857; }
-  .auth-msg.hidden { display: none; }
-  .divider {
-    display: flex; align-items: center; gap: 10px;
-    margin: 20px 0; color: var(--text-muted); font-size: 11px;
-    text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
-  }
-  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-soft); }
-
-  /* ============ TOASTS ============ */
-  .toast-container {
-    position: fixed; top: calc(16px + var(--safe-top)); right: 16px;
-    z-index: 400; display: flex; flex-direction: column; gap: 10px;
-    pointer-events: none; max-width: calc(100vw - 32px); width: 340px;
-  }
-  .toast {
-    background: #fff; border: 1px solid var(--border-soft);
-    border-left: 4px solid var(--accent);
-    border-radius: 14px; padding: 14px 16px;
-    box-shadow: var(--shadow-lg); font-size: 14px; color: var(--text);
-    animation: slideInTopRight .4s var(--ease-spring) both;
-    display: flex; align-items: flex-start; gap: 10px;
-    font-weight: 600; pointer-events: auto;
-  }
-  .toast.success { border-left-color: var(--accent); }
-  .toast.error { border-left-color: var(--danger); }
-  .toast.warning { border-left-color: var(--primary); }
-  .toast.info { border-left-color: var(--blue); }
-  .toast.removing { animation: slideOutTopRight .3s var(--ease-smooth) both; }
-  .toast-icon { font-size: 18px; flex-shrink: 0; line-height: 1.2; }
-  .toast-body { flex: 1; min-width: 0; }
-
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(26,46,26,.4);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 300; padding: 20px;
-    animation: fadeIn .25s var(--ease-smooth) both;
-    backdrop-filter: blur(6px);
-  }
-  .modal {
-    background: #fff; border-radius: 20px; padding: 24px;
-    max-width: 380px; width: 100%; box-shadow: var(--shadow-lg);
-    animation: bounceIn .4s var(--ease-spring) both;
-  }
-  .modal h3 { margin: 0 0 16px; font-size: 18px; font-weight: 800; }
-  .modal input { margin-bottom: 16px; }
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
-
-  .confetti {
-    position: fixed; width: 10px; height: 10px; top: -10px;
-    pointer-events: none; z-index: 500;
-    animation: confettiFall linear forwards;
-  }
-
-  .tab-panel { animation: fadeUp .4s var(--ease-smooth) both; }
-  .tab-panel.hidden { display: none !important; }
-  .hidden { display: none !important; }
-
-  .refresh-fab {
-    position: fixed; bottom: calc(96px + var(--safe-bottom)); right: 16px;
-    width: 48px; height: 48px; border-radius: 50%;
-    background: linear-gradient(135deg, #fde047, #eab308);
-    color: #422006; font-size: 20px;
-    box-shadow: 0 6px 20px var(--primary-glow);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 45; border: none; padding: 0;
-    transition: transform .3s var(--ease-spring);
-  }
-  .refresh-fab:active { transform: scale(.9); }
-
-  .fullscreen-loader {
-    position: fixed; inset: 0; z-index: 500;
-    background: linear-gradient(160deg, #ffffff 0%, #f0fdf4 50%, #fef9c3 100%);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 24px;
-    animation: fadeIn .25s var(--ease-smooth) both;
-  }
-  .fullscreen-loader.hidden { display: none; }
-  .fullscreen-loader .loading-text {
-    font-size: 14px; font-weight: 700; color: var(--text-dim); letter-spacing: .4px;
-  }
-  .fullscreen-loader .loading-text span { animation: pulse 1.2s infinite; }
-  .fullscreen-loader .loading-text span:nth-child(2) { animation-delay: .2s; }
-  .fullscreen-loader .loading-text span:nth-child(3) { animation-delay: .4s; }
-
-  /* ============ DESKTOP FULL SCREEN ============ */
-  @media (min-width: 900px) {
-    body { padding-bottom: 0; }
-    .sidebar { display: flex; }
-    .bottom-nav { display: none; }
-    .mobile-topbar { display: none; }
-    .main { padding: 24px 28px; }
-    .refresh-fab { display: none; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: .01ms !important;
-      transition-duration: .01ms !important;
-    }
-  }
-</style>
-</head>
-<body>
-
-<!-- FULLSCREEN LOADER -->
-<div class="fullscreen-loader hidden" id="fullscreenLoader">
-  <div class="easter-animation">
-    <div class="egg"><div class="eyes"></div></div>
-    <div class="shadow"></div>
-    <div class="clouds">
-      <div class="cloud1"></div>
-      <div class="cloud2"></div>
-      <div class="cloud3"></div>
-    </div>
-  </div>
-  <div class="loading-text" id="loadingText">Loading<span>.</span><span>.</span><span>.</span></div>
-</div>
-
-<!-- LOGIN -->
-<div id="loginOverlay" class="login-overlay">
-  <div class="login-card">
-    <div class="easter-animation logo-loader">
-      <div class="egg"><div class="eyes"></div></div>
-      <div class="shadow"></div>
-      <div class="clouds">
-        <div class="cloud1"></div>
-        <div class="cloud2"></div>
-        <div class="cloud3"></div>
-      </div>
-    </div>
-    <h1>Antvarum</h1>
-    <p class="subtitle">Egg tracker &amp; split manager</p>
-
-    <div class="login-tabs">
-      <button class="login-tab active" data-mode="signin">Sign In</button>
-      <button class="login-tab" data-mode="signup">Sign Up</button>
-    </div>
-
-    <div class="auth-msg hidden" id="authMsg"></div>
-
-    <div class="auth-form" id="emailForm">
-      <div id="signupFields" class="hidden">
-        <input type="text" id="authName" placeholder="Your name" autocomplete="name">
-      </div>
-      <input type="email" id="authEmail" placeholder="Email address" autocomplete="email">
-      <input type="password" id="authPassword" placeholder="Password (min 6 chars)" autocomplete="current-password">
-      <button class="btn-accent btn-block" id="authSubmitBtn" onclick="submitEmailAuth()">Sign In</button>
-    </div>
-
-    <div class="divider">or</div>
-    <button id="signInBtn" class="btn-ghost btn-block">Continue with Google</button>
-  </div>
-</div>
-
-<!-- APP SHELL -->
-<div class="app-shell hidden" id="appContent">
-
-  <!-- SIDEBAR (desktop) -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-icon">🥚</div>
-      <div class="brand-text">
-        <h1>Antvarum</h1>
-        <p>Egg tracker</p>
-      </div>
-    </div>
-    <nav class="nav-list" id="sidebarNav">
-      <button class="nav-item active" data-tab="dashboard"><span class="ico">📊</span> Dashboard</button>
-      <button class="nav-item" data-tab="entry"><span class="ico">✍️</span> Daily Entry</button>
-      <button class="nav-item" data-tab="purchases"><span class="ico">📦</span> Purchases</button>
-      <button class="nav-item" data-tab="people"><span class="ico">👥</span> People</button>
-      <button class="nav-item" data-tab="reports"><span class="ico">📈</span> Reports</button>
-      <button class="nav-item" data-tab="summary"><span class="ico">📋</span> Summary</button>
-    </nav>
-    <div class="user-box">
-      <div class="u-row">
-        <span class="u-dot"></span>
-        <div style="flex:1; min-width:0;">
-          <div class="u-email" id="userEmail">—</div>
-          <div class="u-sync" id="syncStatus">Synced</div>
-        </div>
-      </div>
-      <button class="u-out" onclick="signOut()">Sign out</button>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-    <!-- Mobile topbar -->
-    <div class="mobile-topbar">
-      <div class="brand">
-        <div class="brand-icon">🥚</div>
-        <div class="brand-text">
-          <h1>Antvarum</h1>
-          <p id="userEmailMobile">Loading…</p>
-        </div>
-      </div>
-      <div class="user-chip" onclick="signOut()">
-        <span class="dot"></span>
-        <span id="syncStatusMobile">Synced</span>
-      </div>
-    </div>
-
-    <div class="content">
-
-      <!-- DASHBOARD -->
-      <div class="tab-panel" id="tab-dashboard">
-        <div class="grid-cards two" style="margin-bottom:14px;">
-          <div class="card">
-            <div class="card-title">
-              Active Purchase
-              <span class="badge success" id="purchaseStatus">Active</span>
-            </div>
-            <div class="form-row" style="margin-bottom:14px;">
-              <select id="purchaseSelector" onchange="switchPurchase(this.value)"></select>
-            </div>
-            <div class="stat-grid">
-              <div class="stat primary">
-                <div class="stat-label">Eggs used</div>
-                <div class="stat-value" id="dashUsed">0</div>
-                <div class="stat-sub">of 30</div>
-              </div>
-              <div class="stat success">
-                <div class="stat-label">Remaining</div>
-                <div class="stat-value" id="dashLeft">30</div>
-                <div class="stat-sub">eggs left</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label">Per egg</div>
-                <div class="stat-value" id="dashRate">₹0</div>
-                <div class="stat-sub" id="dashPrice">₹0 carton</div>
-              </div>
-              <div class="stat accent">
-                <div class="stat-label">Amount used</div>
-                <div class="stat-value" id="dashAmount">₹0</div>
-                <div class="stat-sub">this carton</div>
-              </div>
-            </div>
-            <div class="progress-wrap">
-              <div class="progress-info">
-                <span id="progressLabel">0% used</span>
-                <span id="progressText">0 / 30</span>
-              </div>
-              <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">This Month <span class="badge" id="monthLabel"></span></div>
-            <div class="stat-grid">
-              <div class="stat primary">
-                <div class="stat-label">Eggs</div>
-                <div class="stat-value" id="monthEggs">0</div>
-              </div>
-              <div class="stat success">
-                <div class="stat-label">Total spend</div>
-                <div class="stat-value" id="monthSpend">₹0</div>
-              </div>
-              <div class="stat purple">
-                <div class="stat-label">Purchases</div>
-                <div class="stat-value" id="monthCartons">0</div>
-              </div>
-              <div class="stat accent">
-                <div class="stat-label">People</div>
-                <div class="stat-value" id="monthPeople">0</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-cards two">
-          <div class="card">
-            <div class="card-title">Top Consumers <span class="badge accent">This month</span></div>
-            <div id="topConsumers"></div>
-          </div>
-          <div class="card">
-            <div class="card-title">All-Time Overview</div>
-            <div class="stat-grid">
-              <div class="stat success">
-                <div class="stat-label">Total eggs</div>
-                <div class="stat-value" id="totalEggs">0</div>
-              </div>
-              <div class="stat primary">
-                <div class="stat-label">Total spent</div>
-                <div class="stat-value" id="totalSpend">₹0</div>
-              </div>
-              <div class="stat purple">
-                <div class="stat-label">Purchases</div>
-                <div class="stat-value" id="totalPurchases">0</div>
-              </div>
-              <div class="stat accent">
-                <div class="stat-label">Months</div>
-                <div class="stat-value" id="totalMonths">0</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DAILY ENTRY -->
-      <div class="tab-panel hidden" id="tab-entry">
-        <div class="card">
-          <div class="card-title">Add Daily Entry <span class="badge" id="entryPurchaseBadge">—</span></div>
-          <div class="form-row">
-            <input type="date" id="entryDate">
-            <button class="btn-ghost btn-sm" onclick="loadDateForEdit()">Load</button>
-            <button class="btn-ghost btn-sm" onclick="clearEntryForm()">Clear</button>
-          </div>
-          <div class="entry-list" id="entryList"></div>
-          <div class="form-row" style="margin-top:14px;">
-            <button class="btn-accent" style="flex:1;" onclick="saveDailyEntry()">💾 Save Day</button>
-            <button class="btn-ghost" onclick="showAddPersonModal()">+ Person</button>
-          </div>
-          <div id="dailyTotals" style="margin-top:12px; color:var(--text-dim); font-size:13px; text-align:center; font-weight:600;"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Entries for Date <span class="badge" id="todayBadge"></span></div>
-          <div id="todayList"></div>
-        </div>
-      </div>
-
-      <!-- PURCHASES -->
-      <div class="tab-panel hidden" id="tab-purchases">
-        <div class="card">
-          <div class="card-title">
-            Active Purchase
-            <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn-ghost btn-sm" onclick="updatePrice()">Update Price</button>
-              <button class="btn-accent btn-sm" onclick="closePurchase()">Close Carton</button>
-            </div>
-          </div>
-          <div class="form-row">
-            <label style="font-size:12px; color:var(--text-dim); white-space:nowrap; font-weight:700;">PRICE ₹</label>
-            <input type="number" id="cartonPriceInput" step="0.01" style="max-width:140px;">
-            <span style="color:var(--text-dim); font-size:12px;">for 30 eggs</span>
-          </div>
-          <div id="currentCartonDetail"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">
-            All Purchases <span class="badge" id="purchaseCount">0</span>
-            <button class="btn-accent btn-sm" onclick="startNewPurchase()">+ New Purchase</button>
-          </div>
-          <div id="purchaseList"></div>
-        </div>
-      </div>
-
-      <!-- PEOPLE -->
-      <div class="tab-panel hidden" id="tab-people">
-        <div class="card">
-          <div class="card-title">
-            People
-            <button class="btn-accent btn-sm" onclick="showAddPersonModal()">+ Add Person</button>
-          </div>
-          <div class="person-grid" id="peopleGrid"></div>
-        </div>
-      </div>
-
-      <!-- REPORTS -->
-      <div class="tab-panel hidden" id="tab-reports">
-        <div class="card">
-          <div class="card-title">Month-wise Report</div>
-          <div class="form-row">
-            <select id="reportMonth" onchange="renderReports()"></select>
-          </div>
-          <div id="monthReport"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">All-time Leaderboard</div>
-          <div id="leaderboard"></div>
-        </div>
-      </div>
-
-      <!-- SUMMARY -->
-      <div class="tab-panel hidden" id="tab-summary">
-        <div class="card">
-          <div class="card-title">Summary Dashboard</div>
-          <div class="stat-grid" style="margin-bottom:20px;">
-            <div class="stat success">
-              <div class="stat-label">Total eggs consumed</div>
-              <div class="stat-value" id="sumTotalEggs">0</div>
-            </div>
-            <div class="stat primary">
-              <div class="stat-label">Total spent</div>
-              <div class="stat-value" id="sumTotalSpend">₹0</div>
-            </div>
-            <div class="stat purple">
-              <div class="stat-label">Total purchases</div>
-              <div class="stat-value" id="sumPurchases">0</div>
-            </div>
-            <div class="stat accent">
-              <div class="stat-label">Active people</div>
-              <div class="stat-value" id="sumPeople">0</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Per-Person All-Time Summary</div>
-          <div id="summaryPeopleTable"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Monthly Breakdown</div>
-          <div id="summaryMonthly"></div>
-        </div>
-      </div>
-
-    </div>
-  </main>
-</div>
-
-<!-- Bottom Nav -->
-<div class="bottom-nav hidden" id="bottomNav">
-  <button class="nav-btn active" data-tab="dashboard"><span class="ico">📊</span><span class="lbl">Home</span></button>
-  <button class="nav-btn" data-tab="entry"><span class="ico">✍️</span><span class="lbl">Entry</span></button>
-  <button class="nav-btn" data-tab="purchases"><span class="ico">📦</span><span class="lbl">Buys</span></button>
-  <button class="nav-btn" data-tab="people"><span class="ico">👥</span><span class="lbl">People</span></button>
-  <button class="nav-btn" data-tab="summary"><span class="ico">📋</span><span class="lbl">Summary</span></button>
-</div>
-
-<button class="refresh-fab hidden" id="refreshFab" onclick="manualRefresh()">🔄</button>
-
-<div class="toast-container" id="toastContainer"></div>
-
-<script>
-
-const CLIENT_ID = '1075127970047-ed7dgjkf04mqd0tu2lnokadrocfltd03.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-const FOLDER_NAME = 'EggTrackerApp';
-const DATA_FILE = 'egg_data.json';
-const CARTON_SIZE = 30;
-
-const TOKEN_KEY = 'egg_token';
-const EXP_KEY = 'egg_token_exp';
-const EMAIL_KEY = 'egg_user_email';
-const USERS_KEY = 'egg_local_users';
-const SESSION_KEY = 'egg_local_session';
-
-let accessToken = null, tokenClient = null, isSigningIn = false;
-let authMode = 'signin';
-let currentUser = null;
-let appData = { people: [], purchases: [], history: [] };
-
-// ============ INIT ============
-window.addEventListener('load', initApp);
-
-async function initApp() {
-  document.getElementById('entryDate').value = today();
-
-  document.querySelectorAll('.nav-item, .nav-btn').forEach(b => {
-    b.onclick = () => switchTab(b.dataset.tab);
-  });
-  document.querySelectorAll('button').forEach(b => b.addEventListener('click', createRipple));
-  document.querySelectorAll('.login-tab').forEach(t => {
-    t.onclick = () => switchAuthMode(t.dataset.mode);
-  });
-
-  const savedEmail = localStorage.getItem(EMAIL_KEY);
-  if (savedEmail) {
-    document.getElementById('userEmail').textContent = savedEmail;
-    const m = document.getElementById('userEmailMobile');
-    if (m) m.textContent = savedEmail;
-  }
-
-  // 1) Email session?
-  const localSession = getLocalSession();
-  if (localSession) {
-    showFullscreenLoader('Restoring session');
-    await delay(400);
-    currentUser = { email: localSession.email, name: localSession.name, type: 'email' };
-    await enterApp();
-    hideFullscreenLoader();
-    initGoogleClient();
-    return;
-  }
-
-  // 2) Google session?
-  const saved = localStorage.getItem(TOKEN_KEY);
-  const exp = parseInt(localStorage.getItem(EXP_KEY) || '0');
-  if (saved && exp > Date.now() + 60000) {
-    showFullscreenLoader('Restoring session');
-    accessToken = saved;
-    const ok = await verifyToken(accessToken);
-    if (ok) {
-      currentUser = { email: savedEmail || 'Google User', type: 'google' };
-      await enterApp();
-      hideFullscreenLoader();
-      initGoogleClient();
-      return;
-    } else clearGoogleToken();
-    hideFullscreenLoader();
-  }
-
-  document.getElementById('loginOverlay').classList.remove('hidden');
-  initGoogleClient();
-}
-
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-function showFullscreenLoader(text = 'Loading') {
-  const el = document.getElementById('fullscreenLoader');
-  document.getElementById('loadingText').innerHTML = text + '<span>.</span><span>.</span><span>.</span>';
-  el.classList.remove('hidden');
-}
-function hideFullscreenLoader() {
-  document.getElementById('fullscreenLoader').classList.add('hidden');
-}
-
-// ============ AUTH ============
-function switchAuthMode(mode) {
-  authMode = mode;
-  document.querySelectorAll('.login-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
-  document.getElementById('signupFields').classList.toggle('hidden', mode !== 'signup');
-  document.getElementById('authSubmitBtn').textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
-  document.getElementById('authPassword').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
-  hideAuthMsg();
-}
-function showAuthMsg(msg, type = 'error') {
-  const el = document.getElementById('authMsg');
-  el.textContent = msg; el.className = 'auth-msg ' + type;
-}
-function hideAuthMsg() { document.getElementById('authMsg').className = 'auth-msg hidden'; }
-function simpleHash(str) {
-  let h = 5381;
-  for (let i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
-  return String(h >>> 0);
-}
-function getLocalUsers() {
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch { return {}; }
-}
-function saveLocalUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
-
-function getLocalSession() {
-  try {
-    const s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-    if (!s || !s.expiresAt || s.expiresAt < Date.now()) {
-      localStorage.removeItem(SESSION_KEY); return null;
-    }
-    return s;
-  } catch { return null; }
-}
-function setLocalSession(user) {
-  const session = { email: user.email, name: user.name || user.email.split('@')[0], expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 };
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-  return session;
-}
-function clearLocalSession() { localStorage.removeItem(SESSION_KEY); }
-
-async function submitEmailAuth() {
-  hideAuthMsg();
-  const nameEl = document.getElementById('authName');
-  const emailEl = document.getElementById('authEmail');
-  const passEl = document.getElementById('authPassword');
-  const name = (authMode === 'signup' ? nameEl.value.trim() : '');
-  const email = emailEl.value.trim().toLowerCase();
-  const pass = passEl.value;
-
-  if (!email || !email.includes('@')) return showAuthMsg('Enter a valid email address.');
-  if (pass.length < 6) return showAuthMsg('Password must be at least 6 characters.');
-
-  const users = getLocalUsers();
-
-  if (authMode === 'signup') {
-    if (!name) return showAuthMsg('Please enter your name.');
-    if (users[email]) return showAuthMsg('An account with this email already exists. Try signing in.');
-    users[email] = { name, passHash: simpleHash(pass), createdAt: Date.now() };
-    saveLocalUsers(users);
-    setLocalSession({ email, name });
-    currentUser = { email, name, type: 'email' };
-    showFullscreenLoader('Creating account');
-    await delay(400);
-    await enterApp(); hideFullscreenLoader();
-    toast(`Welcome, ${name}!`, 'success');
-    return;
-  }
-
-  if (!users[email]) return showAuthMsg('No account found. Switch to Sign Up to create one.');
-  if (users[email].passHash !== simpleHash(pass)) return showAuthMsg('Incorrect password.');
-
-  setLocalSession({ email, name: users[email].name });
-  currentUser = { email, name: users[email].name, type: 'email' };
-  showFullscreenLoader('Signing in');
-  await delay(400);
-  await enterApp(); hideFullscreenLoader();
-  toast(`Welcome back, ${users[email].name}!`, 'success');
-}
-
-// ============ GOOGLE ============
-function initGoogleClient() {
-  const wait = setInterval(() => {
-    if (typeof google !== 'undefined' && google.accounts) {
-      clearInterval(wait);
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID, scope: SCOPES,
-        callback: async (r) => {
-          if (r?.access_token) {
-            accessToken = r.access_token;
-            const expiresAt = Date.now() + (r.expires_in ? r.expires_in * 1000 : 3500 * 1000);
-            localStorage.setItem(TOKEN_KEY, accessToken);
-            localStorage.setItem(EXP_KEY, expiresAt);
-            currentUser = { email: 'Google User', type: 'google' };
-            showFullscreenLoader('Signing in');
-            await delay(400);
-            await enterApp(); hideFullscreenLoader();
-          }
-          isSigningIn = false;
-        },
-        error_callback: (err) => { isSigningIn = false; console.warn('GIS error:', err); }
-      });
-      const btn = document.getElementById('signInBtn');
-      if (btn) btn.onclick = () => {
-        if (isSigningIn) return;
-        isSigningIn = true;
-        hideAuthMsg();
-        tokenClient.requestAccessToken({ prompt: '' });
-      };
-    }
-  }, 100);
-}
-function clearGoogleToken() {
-  accessToken = null;
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(EXP_KEY);
-  localStorage.removeItem(EMAIL_KEY);
-}
-async function verifyToken(token) {
-  try {
-    const r = await fetch('https://www.googleapis.com/drive/v3/about?fields=user', { headers: { Authorization: `Bearer ${token}` } });
-    return r.ok;
-  } catch { return false; }
-}
-
-// ============ APP ENTRY ============
-async function enterApp() {
-  document.getElementById('loginOverlay').classList.add('hidden');
-  document.getElementById('appContent').classList.remove('hidden');
-  document.getElementById('bottomNav').classList.remove('hidden');
-  document.getElementById('refreshFab').classList.remove('hidden');
-
-  if (currentUser?.type === 'google') {
-    try {
-      const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
-      if (r.ok) {
-        const info = await r.json();
-        currentUser.email = info.email;
-        localStorage.setItem(EMAIL_KEY, info.email);
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Ant Varum" />
+    <title>Ant Varum · Egg Tracker</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://ik.imagekit.io/sathishask2024/ChatGPT_Image_Oct_7__2026__06_41_50_PM-removebg-preview.png"
+    />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      :root {
+        --bg: #f7faf5;
+        --bg-grad-3: #fefce8;
+        --bg-grad-2: #f0fdf4;
+        --surface: #ffffff;
+        --surface-2: #f4faf1;
+        --surface-3: #e9f5e3;
+        --border: #d8e8cf;
+        --border-soft: #ecf3e8;
+        --text: #14261a;
+        --text-dim: #526a52;
+        --text-muted: #94a894;
+        --primary: #eab308;
+        --primary-hover: #ca8a04;
+        --primary-soft: #fef9c3;
+        --primary-glow: rgba(234, 179, 8, 0.3);
+        --accent: #10b981;
+        --accent-hover: #059669;
+        --accent-deep: #047857;
+        --accent-soft: #d1fae5;
+        --accent-glow: rgba(16, 185, 129, 0.25);
+        --danger: #ef4444;
+        --danger-soft: #fee2e2;
+        --purple: #8b5cf6;
+        --purple-soft: #ede9fe;
+        --blue: #3b82f6;
+        --blue-soft: #dbeafe;
+        --radius-xs: 8px;
+        --radius-sm: 12px;
+        --radius: 16px;
+        --radius-lg: 22px;
+        --radius-xl: 28px;
+        --shadow-xs: 0 1px 2px rgba(20, 38, 26, 0.04);
+        --shadow-sm:
+          0 1px 3px rgba(20, 38, 26, 0.05), 0 1px 2px rgba(20, 38, 26, 0.03);
+        --shadow:
+          0 2px 10px rgba(20, 38, 26, 0.06), 0 4px 14px rgba(20, 38, 26, 0.04);
+        --shadow-md:
+          0 6px 20px rgba(20, 38, 26, 0.08), 0 8px 30px rgba(20, 38, 26, 0.05);
+        --shadow-lg:
+          0 16px 44px rgba(20, 38, 26, 0.12), 0 8px 20px rgba(20, 38, 26, 0.06);
+        --shadow-accent: 0 6px 20px rgba(16, 185, 129, 0.18);
+        --shadow-primary: 0 6px 20px rgba(234, 179, 8, 0.25);
+        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-top: env(safe-area-inset-top, 0px);
       }
-    } catch {}
-  }
-  const email = currentUser?.email || '';
-  document.getElementById('userEmail').textContent = email;
-  const m = document.getElementById('userEmailMobile');
-  if (m) m.textContent = email;
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overscroll-behavior-y: none;
+        min-height: 100vh;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        padding-bottom: calc(20px + var(--safe-bottom));
+      }
+      @supports (background: linear-gradient(in oklab, red, blue)) {
+        body {
+          background:
+            radial-gradient(
+              circle at 0% 0%,
+              var(--bg-grad-3) 0%,
+              transparent 40%
+            ),
+            radial-gradient(
+              circle at 100% 0%,
+              var(--bg-grad-2) 0%,
+              transparent 40%
+            ),
+            radial-gradient(circle at 50% 100%, #ecfdf5 0%, transparent 50%),
+            var(--bg);
+          background-attachment: fixed;
+        }
+      }
 
-  await loadData();
+      /* ============ ANIMATIONS ============ */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.12);
+          opacity: 0.75;
+        }
+      }
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+      @keyframes confettiFall {
+        to {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+      @keyframes slideInTopRight {
+        from {
+          opacity: 0;
+          transform: translate(120%, -30%);
+        }
+        to {
+          opacity: 1;
+          transform: translate(0, 0);
+        }
+      }
+      @keyframes slideOutTopRight {
+        to {
+          opacity: 0;
+          transform: translate(120%, -30%);
+        }
+      }
+      @keyframes bounceIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.85);
+        }
+        60% {
+          opacity: 1;
+          transform: scale(1.03);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes floatLogo {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
 
-  if (!appData.purchases || !appData.purchases.length) {
-    appData.purchases = [];
-    createNewPurchase({ setActive: true, silent: true });
-  }
-  if (!appData.purchases.some(p => p.active)) appData.purchases[0].active = true;
+      /* ============ LOADER ============ */
+      .loader-egg {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fef9c3, #d1fae5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 20px 50px rgba(16, 185, 129, 0.2);
+        animation: floatLogo 2.5s ease-in-out infinite;
+      }
+      .loader-egg img {
+        width: 78px;
+        height: 78px;
+        object-fit: contain;
+      }
+      .loader-egg::before,
+      .loader-egg::after {
+        content: "";
+        position: absolute;
+        inset: -12px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        border-top-color: var(--accent);
+        animation: spin 1.2s linear infinite;
+      }
+      .loader-egg::after {
+        inset: -22px;
+        border-top-color: var(--primary);
+        animation-duration: 1.8s;
+        animation-direction: reverse;
+      }
 
-  if (appData.people.length === 0) {
-    appData.people = ['David','Prakash','Naveen','Guru','Harini','Logesh','Sathish','Gunesh','Yogi','Mari'];
-    await saveData();
-  }
-  render();
-  buildEntryForm();
-}
+      /* ============ LAYOUT ============ */
+      .app {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-function signOut() {
-  if (!confirm('Sign out? You will need to sign in again.')) return;
-  if (currentUser?.type === 'google' && accessToken) {
-    try { google.accounts.oauth2.revoke(accessToken, () => {}); } catch {}
-    clearGoogleToken();
-  }
-  if (currentUser?.type === 'email') clearLocalSession();
-  currentUser = null;
-  document.getElementById('loginOverlay').classList.remove('hidden');
-  document.getElementById('appContent').classList.add('hidden');
-  document.getElementById('bottomNav').classList.add('hidden');
-  document.getElementById('refreshFab').classList.add('hidden');
-  document.getElementById('authEmail').value = '';
-  document.getElementById('authPassword').value = '';
-  document.getElementById('authName').value = '';
-  hideAuthMsg();
-}
+      /* Topbar */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: saturate(180%) blur(18px);
+        -webkit-backdrop-filter: saturate(180%) blur(18px);
+        border-bottom: 1px solid var(--border-soft);
+        padding: calc(12px + var(--safe-top)) 16px 12px;
+      }
+      .topbar-inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .brand-block {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .brand-logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fef9c3, #d1fae5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-accent);
+        flex-shrink: 0;
+        overflow: hidden;
+        transition: transform 0.3s var(--ease-spring);
+      }
+      .brand-logo:hover {
+        transform: scale(1.06) rotate(-5deg);
+      }
+      .brand-logo img {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+      }
+      .brand-logo.lg {
+        width: 96px;
+        height: 96px;
+        box-shadow: 0 16px 40px rgba(16, 185, 129, 0.22);
+      }
+      .brand-logo.lg img {
+        width: 80px;
+        height: 80px;
+      }
+      .brand-info {
+        min-width: 0;
+      }
+      .brand-info h1 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -0.4px;
+        line-height: 1.1;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .brand-info p {
+        margin: 2px 0 0;
+        font-size: 10px;
+        color: var(--text-dim);
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+      }
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #fff;
+        padding: 6px 12px 6px 6px;
+        border-radius: 100px;
+        font-size: 12px;
+        color: var(--text-dim);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-xs);
+        cursor: pointer;
+        max-width: 180px;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .user-chip:hover {
+        border-color: var(--accent);
+        box-shadow: var(--shadow-sm);
+      }
+      .user-chip .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 800;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .user-chip .chip-meta {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .user-chip .u-email {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 110px;
+      }
+      .user-chip .u-sync {
+        font-size: 9px;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .user-chip .u-sync .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: pulse 2s infinite;
+      }
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.2s;
+        padding: 0;
+        min-height: 40px;
+        box-shadow: var(--shadow-xs);
+      }
+      .icon-btn:hover {
+        background: var(--surface-2);
+        border-color: var(--accent);
+      }
+      .icon-btn.spin .ico {
+        animation: spin 1s linear infinite;
+        display: inline-block;
+      }
 
-// ============ HELPERS ============
-function today() { return new Date().toISOString().slice(0,10); }
-function monthKey(d) { return (d || today()).slice(0,7); }
-function fmt(n) { return '₹' + Number(n).toFixed(2); }
-function monthName(k) {
-  if (!k) return '';
-  const [y, m] = k.split('-');
-  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return names[parseInt(m,10)-1] + ' ' + y;
-}
+      /* Nav tabs strip */
+      .nav-strip {
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: saturate(180%) blur(18px);
+        -webkit-backdrop-filter: saturate(180%) blur(18px);
+        border-bottom: 1px solid var(--border-soft);
+        padding: 8px 0;
+        position: sticky;
+        top: 72px;
+        z-index: 45;
+      }
+      .nav-strip-inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 16px;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .nav-strip-inner::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-tab {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 16px;
+        background: transparent;
+        border: 1.5px solid transparent;
+        border-radius: 100px;
+        color: var(--text-dim);
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.2s var(--ease-smooth);
+        min-height: 38px;
+      }
+      .nav-tab:hover {
+        background: var(--surface-2);
+        color: var(--text);
+      }
+      .nav-tab.active {
+        background: linear-gradient(135deg, var(--accent-soft), #a7f3d0);
+        color: var(--accent-deep);
+        border-color: var(--accent);
+        box-shadow: var(--shadow-accent);
+      }
+      .nav-tab .ico {
+        font-size: 15px;
+      }
 
-function createRipple(e) {
-  const btn = e.currentTarget;
-  if (!btn || btn.classList.contains('nav-btn') || btn.classList.contains('nav-item') || btn.classList.contains('user-chip') || btn.classList.contains('login-tab')) return;
-  const circle = document.createElement('span');
-  const d = Math.max(btn.clientWidth, btn.clientHeight);
-  const r = btn.getBoundingClientRect();
-  circle.style.width = circle.style.height = d + 'px';
-  circle.style.left = (e.clientX - r.left - d/2) + 'px';
-  circle.style.top = (e.clientY - r.top - d/2) + 'px';
-  circle.className = 'ripple';
-  btn.appendChild(circle);
-  setTimeout(() => circle.remove(), 600);
-}
+      /* Main */
+      .main {
+        flex: 1;
+        padding: 20px 16px;
+      }
+      .content {
+        max-width: 1240px;
+        margin: 0 auto;
+      }
 
-function toast(msg, type = 'info', timeout = 3200) {
-  const el = document.createElement('div');
-  el.className = 'toast ' + type;
-  const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌' };
-  el.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ️'}</span><div class="toast-body">${msg}</div>`;
-  document.getElementById('toastContainer').appendChild(el);
-  setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 300); }, timeout);
-}
+      /* Cards */
+      .grid-cards {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 900px) {
+        .grid-cards.two {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (min-width: 1100px) {
+        .grid-cards.three {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
 
-function animateValue(el, to) {
-  if (!el) return;
-  const skip = ['dashRate','dashAmount','monthSpend','totalSpend','sumTotalSpend'];
-  if (skip.includes(el.id)) return;
-  const from = parseInt(el.dataset.val || '0') || 0;
-  if (from === to) return;
-  el.dataset.val = to;
-  const dur = 500;
-  const start = performance.now();
-  function step(now) {
-    const p = Math.min((now - start) / dur, 1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(from + (to - from) * eased);
-    if (p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
+      .card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 22px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow);
+        animation: fadeUp 0.45s var(--ease-smooth) both;
+        transition:
+          transform 0.25s var(--ease-smooth),
+          box-shadow 0.25s,
+          border-color 0.25s;
+      }
+      .card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--border);
+      }
+      .card-title {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+        color: var(--text-dim);
+        margin: 0 0 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 11px;
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+        padding: 4px 10px;
+        border-radius: 100px;
+        font-weight: 700;
+      }
+      .badge.warning {
+        background: var(--primary-soft);
+        color: var(--primary-hover);
+      }
+      .badge.success {
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+      }
+      .badge.accent {
+        background: var(--blue-soft);
+        color: #1d4ed8;
+      }
+      .badge.purple {
+        background: var(--purple-soft);
+        color: #6d28d9;
+      }
 
-function celebrate() {
-  const colors = ['#fde047','#eab308','#10b981','#34d399','#8b5cf6','#3b82f6'];
-  for (let i = 0; i < 60; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + 'vw';
-    c.style.background = colors[Math.floor(Math.random() * colors.length)];
-    c.style.animationDuration = (2 + Math.random() * 2) + 's';
-    c.style.animationDelay = Math.random() * 0.4 + 's';
-    c.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
-    document.body.appendChild(c);
-    setTimeout(() => c.remove(), 5000);
-  }
-}
+      /* Stats */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      @media (min-width: 700px) {
+        .stat-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      .stat {
+        border-radius: var(--radius-sm);
+        padding: 16px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border-soft);
+        background: linear-gradient(135deg, #ffffff, #f6faf4);
+        transition:
+          transform 0.25s var(--ease-spring),
+          box-shadow 0.25s;
+        animation: scaleIn 0.5s var(--ease-spring) both;
+      }
+      .stat:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+      .stat::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--accent);
+      }
+      .stat.primary::before {
+        background: var(--primary);
+      }
+      .stat.primary {
+        background: linear-gradient(135deg, #fffef7, #fef9c3);
+      }
+      .stat.success::before {
+        background: var(--accent);
+      }
+      .stat.success {
+        background: linear-gradient(135deg, #f0fdf4, #d1fae5);
+      }
+      .stat.purple::before {
+        background: var(--purple);
+      }
+      .stat.purple {
+        background: linear-gradient(135deg, #faf5ff, #ede9fe);
+      }
+      .stat.accent::before {
+        background: var(--blue);
+      }
+      .stat.accent {
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      }
+      .stat-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-dim);
+        margin-bottom: 6px;
+        font-weight: 700;
+      }
+      .stat-value {
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+        line-height: 1.05;
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+      }
+      .stat.primary .stat-value {
+        color: var(--primary-hover);
+      }
+      .stat.success .stat-value {
+        color: var(--accent-deep);
+      }
+      .stat.purple .stat-value {
+        color: #6d28d9;
+      }
+      .stat.accent .stat-value {
+        color: #1d4ed8;
+      }
+      .stat-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 4px;
+        font-weight: 500;
+      }
 
-function showAddPersonModal() {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
-  overlay.innerHTML = `
+      /* Progress */
+      .progress-wrap {
+        margin-top: 18px;
+      }
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+      .progress {
+        height: 12px;
+        background: var(--border-soft);
+        border-radius: 100px;
+        overflow: hidden;
+        position: relative;
+      }
+      .progress-bar {
+        height: 100%;
+        border-radius: 100px;
+        background: linear-gradient(90deg, #86efac, #10b981, #eab308);
+        background-size: 200% 100%;
+        animation: gradientShift 3s linear infinite;
+        transition: width 0.8s var(--ease-spring);
+        position: relative;
+        box-shadow: 0 0 14px var(--accent-glow);
+      }
+      .progress-bar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.65),
+          transparent
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+      }
+
+      /* Buttons */
+      button {
+        position: relative;
+        overflow: hidden;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 12px 20px;
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        letter-spacing: -0.1px;
+        transition:
+          transform 0.15s var(--ease-spring),
+          box-shadow 0.2s,
+          background 0.2s;
+        min-height: 44px;
+        touch-action: manipulation;
+      }
+      button:active {
+        transform: scale(0.96);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #fde047, #eab308);
+        color: #422006;
+        box-shadow: var(--shadow-primary);
+      }
+      .btn-primary:hover {
+        box-shadow: 0 8px 24px var(--primary-glow);
+      }
+      .btn-accent {
+        background: linear-gradient(135deg, #34d399, #10b981);
+        color: #fff;
+        box-shadow: var(--shadow-accent);
+      }
+      .btn-accent:hover {
+        box-shadow: 0 8px 24px var(--accent-glow);
+      }
+      .btn-danger {
+        background: linear-gradient(135deg, #f87171, #ef4444);
+        color: #fff;
+      }
+      .btn-ghost {
+        background: #fff;
+        color: var(--text);
+        border: 1.5px solid var(--border);
+      }
+      .btn-ghost:hover {
+        background: var(--surface-2);
+        border-color: var(--accent);
+      }
+      .btn-sm {
+        padding: 8px 14px;
+        font-size: 12px;
+        min-height: 36px;
+        border-radius: var(--radius-xs);
+      }
+      .btn-block {
+        width: 100%;
+      }
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.55);
+        transform: scale(0);
+        pointer-events: none;
+        animation: ripple 0.6s linear;
+      }
+      .btn-ghost .ripple {
+        background: rgba(16, 185, 129, 0.2);
+      }
+
+      /* Forms */
+      input,
+      select {
+        font-family: inherit;
+        font-size: 15px;
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        color: var(--text);
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        min-height: 46px;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-glow);
+      }
+      input::placeholder {
+        color: var(--text-muted);
+      }
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23526a52' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 38px;
+      }
+      .form-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+      .form-row input,
+      .form-row select {
+        flex: 1;
+        min-width: 120px;
+      }
+      .form-row .btn-sm {
+        flex-shrink: 0;
+      }
+
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 12px 10px;
+        text-align: left;
+        font-size: 14px;
+      }
+      th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-dim);
+        font-weight: 800;
+        border-bottom: 1.5px solid var(--border);
+        background: var(--surface-2);
+      }
+      th:first-child {
+        border-top-left-radius: var(--radius-xs);
+      }
+      th:last-child {
+        border-top-right-radius: var(--radius-xs);
+      }
+      td {
+        border-bottom: 1px solid var(--border-soft);
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr {
+        animation: fadeUp 0.35s var(--ease-smooth) both;
+      }
+      tbody tr:nth-child(1) {
+        animation-delay: 0.02s;
+      }
+      tbody tr:nth-child(2) {
+        animation-delay: 0.05s;
+      }
+      tbody tr:nth-child(3) {
+        animation-delay: 0.08s;
+      }
+      tbody tr:nth-child(4) {
+        animation-delay: 0.11s;
+      }
+      tbody tr:nth-child(5) {
+        animation-delay: 0.14s;
+      }
+      tbody tr:nth-child(n + 6) {
+        animation-delay: 0.17s;
+      }
+      tbody tr:hover td {
+        background: var(--surface-2);
+      }
+      .amount {
+        font-weight: 800;
+        color: var(--accent-deep);
+        font-variant-numeric: tabular-nums;
+      }
+      .num {
+        font-variant-numeric: tabular-nums;
+      }
+      .rank {
+        display: inline-flex;
+        width: 24px;
+        height: 24px;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface-2);
+        border-radius: 50%;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-dim);
+        margin-right: 8px;
+        transition: transform 0.3s var(--ease-spring);
+      }
+      tr:hover .rank {
+        transform: scale(1.15) rotate(-5deg);
+      }
+      .rank.gold {
+        background: linear-gradient(135deg, #fde047, #eab308);
+        color: #422006;
+        box-shadow: 0 2px 8px var(--primary-glow);
+      }
+      .rank.silver {
+        background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+        color: #fff;
+      }
+      .rank.bronze {
+        background: linear-gradient(135deg, #fdba74, #ea580c);
+        color: #fff;
+      }
+
+      /* Entry */
+      .entry-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      @media (min-width: 700px) {
+        .entry-list {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (min-width: 1100px) {
+        .entry-list {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .entry-row {
+        display: grid;
+        grid-template-columns: 1fr 90px;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 14px;
+        background: var(--surface-2);
+        border-radius: var(--radius-sm);
+        border: 1.5px solid transparent;
+        animation: fadeUp 0.4s var(--ease-smooth) both;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+      }
+      .entry-row:focus-within {
+        border-color: var(--accent);
+        background: #fff;
+        box-shadow: var(--shadow-xs);
+      }
+      .entry-row label {
+        font-size: 14px;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .entry-row input {
+        padding: 8px 10px;
+        text-align: center;
+        font-weight: 700;
+        min-height: 40px;
+      }
+
+      /* Purchase cards */
+      .carton-card {
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 10px;
+        border: 1px solid var(--border-soft);
+        border-left: 4px solid var(--accent);
+        cursor: pointer;
+        animation: fadeUp 0.4s var(--ease-smooth) both;
+        transition:
+          transform 0.25s var(--ease-spring),
+          box-shadow 0.2s,
+          border-color 0.2s,
+          background 0.2s;
+      }
+      .carton-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateX(2px);
+      }
+      .carton-card.active-purchase {
+        border-left-color: var(--primary);
+        background: linear-gradient(135deg, #fffef7, #fefce8);
+        box-shadow: 0 4px 18px var(--primary-glow);
+      }
+      .carton-card.closed {
+        border-left-color: var(--accent);
+      }
+      .carton-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+        gap: 10px;
+      }
+      .carton-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .carton-meta {
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-top: 3px;
+      }
+      .carton-amount {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--accent-deep);
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      .carton-body {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 1px solid var(--border-soft);
+        display: grid;
+        grid-template-rows: 0fr;
+        transition:
+          grid-template-rows 0.4s var(--ease-smooth),
+          padding-top 0.4s,
+          margin-top 0.4s;
+      }
+      .carton-body > div {
+        overflow: hidden;
+      }
+      .carton-body.open {
+        grid-template-rows: 1fr;
+        padding-top: 12px;
+        margin-top: 12px;
+      }
+
+      /* Person cards */
+      .person-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      @media (min-width: 700px) {
+        .person-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (min-width: 1100px) {
+        .person-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      .person-card {
+        background: linear-gradient(135deg, #ffffff, #f8fbf6);
+        border-radius: var(--radius);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        border: 1px solid var(--border-soft);
+        animation: scaleIn 0.45s var(--ease-spring) both;
+        transition:
+          transform 0.25s var(--ease-spring),
+          box-shadow 0.25s,
+          border-color 0.2s;
+      }
+      .person-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--accent);
+      }
+      .person-card .name {
+        font-size: 16px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .person-card .name .tagline {
+        font-size: 11px;
+        color: var(--text-dim);
+        font-weight: 500;
+      }
+      .person-card .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+      .person-card .metric {
+        background: #fff;
+        border-radius: var(--radius-xs);
+        padding: 10px 8px;
+        text-align: center;
+        border: 1px solid var(--border-soft);
+      }
+      .person-card .metric-label {
+        color: var(--text-dim);
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        font-weight: 800;
+      }
+      .person-card .metric-value {
+        font-weight: 800;
+        margin-top: 3px;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Empty */
+      .empty {
+        text-align: center;
+        color: var(--text-dim);
+        padding: 40px 20px;
+        font-size: 14px;
+        animation: fadeUp 0.5s var(--ease-smooth) both;
+      }
+      .empty::before {
+        content: "🥚";
+        display: block;
+        font-size: 48px;
+        margin-bottom: 12px;
+        opacity: 0.8;
+      }
+
+      /* Login */
+      .login-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: linear-gradient(
+          160deg,
+          #ffffff 0%,
+          #f0fdf4 50%,
+          #fef9c3 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        overflow-y: auto;
+        transition:
+          opacity 0.4s,
+          visibility 0.4s;
+      }
+      .login-overlay.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .login-card {
+        text-align: center;
+        padding: 32px 28px 36px;
+        background: #fff;
+        border-radius: var(--radius-xl);
+        box-shadow:
+          0 20px 50px rgba(16, 185, 129, 0.15),
+          0 10px 24px rgba(20, 38, 26, 0.08);
+        border: 1px solid var(--border-soft);
+        max-width: 420px;
+        width: 100%;
+        animation: bounceIn 0.8s var(--ease-spring) both;
+        margin: auto;
+      }
+      .login-card .logo-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+      .login-card h1 {
+        margin: 4px 0 4px;
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: -0.9px;
+        color: var(--text);
+      }
+      .login-card h1 .accent {
+        background: linear-gradient(135deg, var(--accent), var(--primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .login-card .tagline {
+        margin: 0 0 24px;
+        color: var(--text-dim);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .login-tabs {
+        display: flex;
+        background: var(--surface-2);
+        border-radius: var(--radius-sm);
+        padding: 4px;
+        margin-bottom: 20px;
+        gap: 4px;
+      }
+      .login-tab {
+        flex: 1;
+        padding: 10px;
+        background: transparent;
+        border: none;
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--text-dim);
+        border-radius: var(--radius-xs);
+        cursor: pointer;
+        transition: all 0.25s var(--ease-smooth);
+        min-height: 40px;
+      }
+      .login-tab.active {
+        background: #fff;
+        color: var(--accent-deep);
+        box-shadow: 0 2px 10px rgba(16, 185, 129, 0.15);
+      }
+      .auth-form {
+        text-align: left;
+      }
+      .auth-form input {
+        margin-bottom: 10px;
+      }
+      .auth-msg {
+        font-size: 12px;
+        padding: 10px 12px;
+        border-radius: var(--radius-xs);
+        margin-bottom: 10px;
+        font-weight: 700;
+        text-align: left;
+        animation: scaleIn 0.3s var(--ease-spring) both;
+      }
+      .auth-msg.error {
+        background: var(--danger-soft);
+        color: #991b1b;
+      }
+      .auth-msg.success {
+        background: var(--accent-soft);
+        color: var(--accent-deep);
+      }
+      .auth-msg.hidden {
+        display: none;
+      }
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0;
+        color: var(--text-muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        font-weight: 800;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border-soft);
+      }
+
+      /* Toasts */
+      .toast-container {
+        position: fixed;
+        top: calc(16px + var(--safe-top));
+        right: 16px;
+        z-index: 400;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+        max-width: calc(100vw - 32px);
+        width: 340px;
+      }
+      .toast {
+        background: #fff;
+        border: 1px solid var(--border-soft);
+        border-left: 4px solid var(--accent);
+        border-radius: var(--radius-sm);
+        padding: 14px 16px;
+        box-shadow: var(--shadow-lg);
+        font-size: 14px;
+        color: var(--text);
+        animation: slideInTopRight 0.4s var(--ease-spring) both;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-weight: 600;
+        pointer-events: auto;
+      }
+      .toast.success {
+        border-left-color: var(--accent);
+      }
+      .toast.error {
+        border-left-color: var(--danger);
+      }
+      .toast.warning {
+        border-left-color: var(--primary);
+      }
+      .toast.info {
+        border-left-color: var(--blue);
+      }
+      .toast.removing {
+        animation: slideOutTopRight 0.3s var(--ease-smooth) both;
+      }
+      .toast-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+        line-height: 1.2;
+      }
+      .toast-body {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 38, 26, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 300;
+        padding: 20px;
+        animation: fadeIn 0.25s var(--ease-smooth) both;
+        backdrop-filter: blur(6px);
+      }
+      .modal {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 26px;
+        max-width: 380px;
+        width: 100%;
+        box-shadow: var(--shadow-lg);
+        animation: bounceIn 0.4s var(--ease-spring) both;
+      }
+      .modal h3 {
+        margin: 0 0 16px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+      .modal input {
+        margin-bottom: 16px;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      /* Confetti */
+      .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        top: -10px;
+        pointer-events: none;
+        z-index: 500;
+        animation: confettiFall linear forwards;
+      }
+
+      /* Tab panels */
+      .tab-panel {
+        animation: fadeUp 0.4s var(--ease-smooth) both;
+      }
+      .tab-panel.hidden {
+        display: none !important;
+      }
+      .hidden {
+        display: none !important;
+      }
+
+      /* Fullscreen loader */
+      .fullscreen-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 500;
+        background: linear-gradient(
+          160deg,
+          #ffffff 0%,
+          #f0fdf4 50%,
+          #fef9c3 100%
+        );
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 26px;
+        animation: fadeIn 0.25s var(--ease-smooth) both;
+      }
+      .fullscreen-loader.hidden {
+        display: none;
+      }
+      .fullscreen-loader .loading-text {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--text-dim);
+        letter-spacing: 0.5px;
+      }
+      .fullscreen-loader .loading-text span {
+        animation: pulse 1.2s infinite;
+      }
+      .fullscreen-loader .loading-text span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .fullscreen-loader .loading-text span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      /* Desktop tweaks */
+      @media (min-width: 768px) {
+        .topbar {
+          padding: 16px 24px;
+        }
+        .nav-strip {
+          top: 80px;
+        }
+        .nav-strip-inner {
+          padding: 0 24px;
+        }
+        .main {
+          padding: 24px;
+        }
+        .brand-logo {
+          width: 50px;
+          height: 50px;
+        }
+        .brand-logo img {
+          width: 42px;
+          height: 42px;
+        }
+        .brand-info h1 {
+          font-size: 19px;
+        }
+        .brand-info p {
+          font-size: 11px;
+          letter-spacing: 0.8px;
+        }
+        .user-chip .u-email {
+          max-width: 180px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- FULLSCREEN LOADER -->
+    <div class="fullscreen-loader hidden" id="fullscreenLoader">
+      <div class="loader-egg">
+        <img
+          src="https://ik.imagekit.io/sathishask2024/ChatGPT_Image_Oct_7__2026__06_41_50_PM-removebg-preview.png"
+          alt="Ant Varum"
+        />
+      </div>
+      <div class="loading-text" id="loadingText">
+        Loading<span>.</span><span>.</span><span>.</span>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginOverlay" class="login-overlay">
+      <div class="login-card">
+        <div class="logo-wrap">
+          <div class="brand-logo lg">
+            <img
+              src="https://ik.imagekit.io/sathishask2024/ChatGPT_Image_Oct_7__2026__06_41_50_PM-removebg-preview.png"
+              alt="Ant Varum"
+            />
+          </div>
+        </div>
+        <h1>ANT <span class="accent">VARUM</span></h1>
+        <p class="tagline">Egg Tracker</p>
+
+        <div class="login-tabs">
+          <button class="login-tab active" data-mode="signin">Sign In</button>
+          <button class="login-tab" data-mode="signup">Sign Up</button>
+        </div>
+
+        <div class="auth-msg hidden" id="authMsg"></div>
+
+        <div class="auth-form">
+          <div id="signupFields" class="hidden">
+            <input
+              type="text"
+              id="authName"
+              placeholder="Your name"
+              autocomplete="name"
+            />
+          </div>
+          <input
+            type="email"
+            id="authEmail"
+            placeholder="Email address"
+            autocomplete="email"
+          />
+          <input
+            type="password"
+            id="authPassword"
+            placeholder="Password (min 6 chars)"
+            autocomplete="current-password"
+          />
+          <button
+            class="btn-accent btn-block"
+            id="authSubmitBtn"
+            onclick="submitEmailAuth()"
+          >
+            Sign In
+          </button>
+        </div>
+
+        <div class="divider">or</div>
+        <button id="signInBtn" class="btn-ghost btn-block">
+          Continue with Google
+        </button>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div class="app hidden" id="appContent">
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="topbar-inner">
+          <div class="brand-block">
+            <div class="brand-logo">
+              <img
+                src="https://ik.imagekit.io/sathishask2024/ChatGPT_Image_Oct_7__2026__06_41_50_PM-removebg-preview.png"
+                alt="Ant Varum"
+              />
+            </div>
+            <div class="brand-info">
+              <h1>ANT VARUM</h1>
+              <p>Egg Tracker</p>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button
+              class="icon-btn"
+              id="refreshBtn"
+              onclick="manualRefresh()"
+              title="Refresh"
+            >
+              <span class="ico">🔄</span>
+            </button>
+            <div class="user-chip" onclick="signOut()" title="Sign out">
+              <div class="avatar" id="userAvatar">A</div>
+              <div class="chip-meta">
+                <div class="u-email" id="userEmail">—</div>
+                <div class="u-sync">
+                  <span class="dot"></span><span id="syncStatus">Synced</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAV STRIP -->
+      <div class="nav-strip">
+        <div class="nav-strip-inner" id="navStrip">
+          <button class="nav-tab active" data-tab="dashboard">
+            <span class="ico">📊</span> Dashboard
+          </button>
+          <button class="nav-tab" data-tab="entry">
+            <span class="ico">✍️</span> Daily Entry
+          </button>
+          <button class="nav-tab" data-tab="purchases">
+            <span class="ico">📦</span> Purchases
+          </button>
+          <button class="nav-tab" data-tab="people">
+            <span class="ico">👥</span> People
+          </button>
+          <button class="nav-tab" data-tab="reports">
+            <span class="ico">📈</span> Reports
+          </button>
+          <button class="nav-tab" data-tab="summary">
+            <span class="ico">📋</span> Summary
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <main class="main">
+        <div class="content">
+          <!-- DASHBOARD -->
+          <div class="tab-panel" id="tab-dashboard">
+            <div class="grid-cards two" style="margin-bottom: 16px">
+              <div class="card">
+                <div class="card-title">
+                  Active Purchase
+                  <span class="badge success" id="purchaseStatus">Active</span>
+                </div>
+                <div class="form-row" style="margin-bottom: 14px">
+                  <select
+                    id="purchaseSelector"
+                    onchange="switchPurchase(this.value)"
+                  ></select>
+                </div>
+                <div class="stat-grid">
+                  <div class="stat primary">
+                    <div class="stat-label">Eggs used</div>
+                    <div class="stat-value" id="dashUsed">0</div>
+                    <div class="stat-sub">of 30</div>
+                  </div>
+                  <div class="stat success">
+                    <div class="stat-label">Remaining</div>
+                    <div class="stat-value" id="dashLeft">30</div>
+                    <div class="stat-sub">eggs left</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-label">Per egg</div>
+                    <div class="stat-value" id="dashRate">₹0</div>
+                    <div class="stat-sub" id="dashPrice">₹0 carton</div>
+                  </div>
+                  <div class="stat accent">
+                    <div class="stat-label">Amount used</div>
+                    <div class="stat-value" id="dashAmount">₹0</div>
+                    <div class="stat-sub">this carton</div>
+                  </div>
+                </div>
+                <div class="progress-wrap">
+                  <div class="progress-info">
+                    <span id="progressLabel">0% used</span>
+                    <span id="progressText">0 / 30</span>
+                  </div>
+                  <div class="progress">
+                    <div
+                      class="progress-bar"
+                      id="progressBar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">
+                  This Month <span class="badge" id="monthLabel"></span>
+                </div>
+                <div class="stat-grid">
+                  <div class="stat primary">
+                    <div class="stat-label">Eggs</div>
+                    <div class="stat-value" id="monthEggs">0</div>
+                  </div>
+                  <div class="stat success">
+                    <div class="stat-label">Total spend</div>
+                    <div class="stat-value" id="monthSpend">₹0</div>
+                  </div>
+                  <div class="stat purple">
+                    <div class="stat-label">Purchases</div>
+                    <div class="stat-value" id="monthCartons">0</div>
+                  </div>
+                  <div class="stat accent">
+                    <div class="stat-label">People</div>
+                    <div class="stat-value" id="monthPeople">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-cards two">
+              <div class="card">
+                <div class="card-title">
+                  Top Consumers <span class="badge accent">This month</span>
+                </div>
+                <div id="topConsumers"></div>
+              </div>
+              <div class="card">
+                <div class="card-title">All-Time Overview</div>
+                <div class="stat-grid">
+                  <div class="stat success">
+                    <div class="stat-label">Total eggs</div>
+                    <div class="stat-value" id="totalEggs">0</div>
+                  </div>
+                  <div class="stat primary">
+                    <div class="stat-label">Total spent</div>
+                    <div class="stat-value" id="totalSpend">₹0</div>
+                  </div>
+                  <div class="stat purple">
+                    <div class="stat-label">Purchases</div>
+                    <div class="stat-value" id="totalPurchases">0</div>
+                  </div>
+                  <div class="stat accent">
+                    <div class="stat-label">Months</div>
+                    <div class="stat-value" id="totalMonths">0</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ENTRY -->
+          <div class="tab-panel hidden" id="tab-entry">
+            <div class="card">
+              <div class="card-title">
+                Add Daily Entry
+                <span class="badge" id="entryPurchaseBadge">—</span>
+              </div>
+              <div class="form-row">
+                <input type="date" id="entryDate" />
+                <button class="btn-ghost btn-sm" onclick="loadDateForEdit()">
+                  Load
+                </button>
+                <button class="btn-ghost btn-sm" onclick="clearEntryForm()">
+                  Clear
+                </button>
+              </div>
+              <div class="entry-list" id="entryList"></div>
+              <div class="form-row" style="margin-top: 14px">
+                <button
+                  class="btn-accent"
+                  style="flex: 1"
+                  onclick="saveDailyEntry()"
+                >
+                  💾 Save Day
+                </button>
+                <button class="btn-ghost" onclick="showAddPersonModal()">
+                  + Person
+                </button>
+              </div>
+              <div
+                id="dailyTotals"
+                style="
+                  margin-top: 12px;
+                  color: var(--text-dim);
+                  font-size: 13px;
+                  text-align: center;
+                  font-weight: 700;
+                "
+              ></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                Entries for Date <span class="badge" id="todayBadge"></span>
+              </div>
+              <div id="todayList"></div>
+            </div>
+          </div>
+
+          <!-- PURCHASES -->
+          <div class="tab-panel hidden" id="tab-purchases">
+            <div class="card">
+              <div class="card-title">
+                Active Purchase
+                <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                  <button class="btn-ghost btn-sm" onclick="updatePrice()">
+                    Update Price
+                  </button>
+                  <button class="btn-accent btn-sm" onclick="closePurchase()">
+                    Close Carton
+                  </button>
+                </div>
+              </div>
+              <div class="form-row">
+                <label
+                  style="
+                    font-size: 12px;
+                    color: var(--text-dim);
+                    white-space: nowrap;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.4px;
+                  "
+                  >Price ₹</label
+                >
+                <input
+                  type="number"
+                  id="cartonPriceInput"
+                  step="0.01"
+                  style="max-width: 140px"
+                />
+                <span
+                  style="
+                    color: var(--text-dim);
+                    font-size: 12px;
+                    font-weight: 600;
+                  "
+                  >for 30 eggs</span
+                >
+              </div>
+              <div id="currentCartonDetail"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                All Purchases <span class="badge" id="purchaseCount">0</span>
+                <button class="btn-accent btn-sm" onclick="startNewPurchase()">
+                  + New Purchase
+                </button>
+              </div>
+              <div id="purchaseList"></div>
+            </div>
+          </div>
+
+          <!-- PEOPLE -->
+          <div class="tab-panel hidden" id="tab-people">
+            <div class="card">
+              <div class="card-title">
+                People
+                <button
+                  class="btn-accent btn-sm"
+                  onclick="showAddPersonModal()"
+                >
+                  + Add Person
+                </button>
+              </div>
+              <div class="person-grid" id="peopleGrid"></div>
+            </div>
+          </div>
+
+          <!-- REPORTS -->
+          <div class="tab-panel hidden" id="tab-reports">
+            <div class="card">
+              <div class="card-title">Month-wise Report</div>
+              <div class="form-row">
+                <select id="reportMonth" onchange="renderReports()"></select>
+              </div>
+              <div id="monthReport"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">All-time Leaderboard</div>
+              <div id="leaderboard"></div>
+            </div>
+          </div>
+
+          <!-- SUMMARY -->
+          <div class="tab-panel hidden" id="tab-summary">
+            <div class="card" style="margin-bottom: 16px">
+              <div class="card-title">Summary Dashboard</div>
+              <div class="stat-grid">
+                <div class="stat success">
+                  <div class="stat-label">Total eggs</div>
+                  <div class="stat-value" id="sumTotalEggs">0</div>
+                </div>
+                <div class="stat primary">
+                  <div class="stat-label">Total spent</div>
+                  <div class="stat-value" id="sumTotalSpend">₹0</div>
+                </div>
+                <div class="stat purple">
+                  <div class="stat-label">Purchases</div>
+                  <div class="stat-value" id="sumPurchases">0</div>
+                </div>
+                <div class="stat accent">
+                  <div class="stat-label">Active people</div>
+                  <div class="stat-value" id="sumPeople">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 16px">
+              <div class="card-title">Per-Person All-Time Summary</div>
+              <div id="summaryPeopleTable"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Monthly Breakdown</div>
+              <div id="summaryMonthly"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+      const CLIENT_ID =
+        "1075127970047-ed7dgjkf04mqd0tu2lnokadrocfltd03.apps.googleusercontent.com";
+      const SCOPES = "https://www.googleapis.com/auth/drive.file";
+      const FOLDER_NAME = "AntVarumEggTracker";
+      const DATA_FILE = "egg_data.json";
+      const CARTON_SIZE = 30;
+
+      const TOKEN_KEY = "av_token";
+      const EXP_KEY = "av_token_exp";
+      const EMAIL_KEY = "av_user_email";
+      const USERS_KEY = "av_local_users";
+      const SESSION_KEY = "av_local_session";
+
+      let accessToken = null,
+        tokenClient = null,
+        isSigningIn = false;
+      let authMode = "signin";
+      let currentUser = null;
+      let appData = { people: [], purchases: [], history: [] };
+
+      // ============ INIT ============
+      window.addEventListener("load", initApp);
+
+      async function initApp() {
+        document.getElementById("entryDate").value = today();
+
+        document.querySelectorAll(".nav-tab").forEach((b) => {
+          b.onclick = () => switchTab(b.dataset.tab);
+        });
+        document
+          .querySelectorAll("button")
+          .forEach((b) => b.addEventListener("click", createRipple));
+        document.querySelectorAll(".login-tab").forEach((t) => {
+          t.onclick = () => switchAuthMode(t.dataset.mode);
+        });
+
+        const savedEmail = localStorage.getItem(EMAIL_KEY);
+        if (savedEmail) updateUserUI(savedEmail);
+
+        // 1) Email session?
+        const localSession = getLocalSession();
+        if (localSession) {
+          showFullscreenLoader("Restoring session");
+          await delay(400);
+          currentUser = {
+            email: localSession.email,
+            name: localSession.name,
+            type: "email",
+          };
+          await enterApp();
+          hideFullscreenLoader();
+          initGoogleClient();
+          return;
+        }
+
+        // 2) Google session?
+        const saved = localStorage.getItem(TOKEN_KEY);
+        const exp = parseInt(localStorage.getItem(EXP_KEY) || "0");
+        if (saved && exp > Date.now() + 60000) {
+          showFullscreenLoader("Restoring session");
+          accessToken = saved;
+          const ok = await verifyToken(accessToken);
+          if (ok) {
+            currentUser = {
+              email: savedEmail || "Google User",
+              type: "google",
+            };
+            await enterApp();
+            hideFullscreenLoader();
+            initGoogleClient();
+            return;
+          } else clearGoogleToken();
+          hideFullscreenLoader();
+        }
+
+        document.getElementById("loginOverlay").classList.remove("hidden");
+        initGoogleClient();
+      }
+
+      function delay(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+
+      function showFullscreenLoader(text = "Loading") {
+        const el = document.getElementById("fullscreenLoader");
+        document.getElementById("loadingText").innerHTML =
+          text + "<span>.</span><span>.</span><span>.</span>";
+        el.classList.remove("hidden");
+      }
+      function hideFullscreenLoader() {
+        document.getElementById("fullscreenLoader").classList.add("hidden");
+      }
+
+      function updateUserUI(email) {
+        document.getElementById("userEmail").textContent = email;
+        const avatar = document.getElementById("userAvatar");
+        avatar.textContent = (email || "A").charAt(0).toUpperCase();
+      }
+
+      // ============ AUTH ============
+      function switchAuthMode(mode) {
+        authMode = mode;
+        document
+          .querySelectorAll(".login-tab")
+          .forEach((t) =>
+            t.classList.toggle("active", t.dataset.mode === mode),
+          );
+        document
+          .getElementById("signupFields")
+          .classList.toggle("hidden", mode !== "signup");
+        document.getElementById("authSubmitBtn").textContent =
+          mode === "signup" ? "Create Account" : "Sign In";
+        document.getElementById("authPassword").autocomplete =
+          mode === "signup" ? "new-password" : "current-password";
+        hideAuthMsg();
+      }
+      function showAuthMsg(msg, type = "error") {
+        const el = document.getElementById("authMsg");
+        el.textContent = msg;
+        el.className = "auth-msg " + type;
+      }
+      function hideAuthMsg() {
+        document.getElementById("authMsg").className = "auth-msg hidden";
+      }
+      function simpleHash(str) {
+        let h = 5381;
+        for (let i = 0; i < str.length; i++)
+          h = (h << 5) + h + str.charCodeAt(i);
+        return String(h >>> 0);
+      }
+      function getLocalUsers() {
+        try {
+          return JSON.parse(localStorage.getItem(USERS_KEY) || "{}");
+        } catch {
+          return {};
+        }
+      }
+      function saveLocalUsers(u) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(u));
+      }
+
+      function getLocalSession() {
+        try {
+          const s = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+          if (!s || !s.expiresAt || s.expiresAt < Date.now()) {
+            localStorage.removeItem(SESSION_KEY);
+            return null;
+          }
+          return s;
+        } catch {
+          return null;
+        }
+      }
+      function setLocalSession(user) {
+        const session = {
+          email: user.email,
+          name: user.name || user.email.split("@")[0],
+          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        return session;
+      }
+      function clearLocalSession() {
+        localStorage.removeItem(SESSION_KEY);
+      }
+
+      async function submitEmailAuth() {
+        hideAuthMsg();
+        const nameEl = document.getElementById("authName");
+        const emailEl = document.getElementById("authEmail");
+        const passEl = document.getElementById("authPassword");
+        const name = authMode === "signup" ? nameEl.value.trim() : "";
+        const email = emailEl.value.trim().toLowerCase();
+        const pass = passEl.value;
+
+        if (!email || !email.includes("@"))
+          return showAuthMsg("Enter a valid email address.");
+        if (pass.length < 6)
+          return showAuthMsg("Password must be at least 6 characters.");
+
+        const users = getLocalUsers();
+
+        if (authMode === "signup") {
+          if (!name) return showAuthMsg("Please enter your name.");
+          if (users[email])
+            return showAuthMsg(
+              "An account with this email already exists. Try signing in.",
+            );
+          users[email] = {
+            name,
+            passHash: simpleHash(pass),
+            createdAt: Date.now(),
+          };
+          saveLocalUsers(users);
+          setLocalSession({ email, name });
+          currentUser = { email, name, type: "email" };
+          showFullscreenLoader("Creating account");
+          await delay(400);
+          await enterApp();
+          hideFullscreenLoader();
+          toast(`Welcome, ${name}!`, "success");
+          return;
+        }
+
+        if (!users[email])
+          return showAuthMsg(
+            "No account found. Switch to Sign Up to create one.",
+          );
+        if (users[email].passHash !== simpleHash(pass))
+          return showAuthMsg("Incorrect password.");
+
+        setLocalSession({ email, name: users[email].name });
+        currentUser = { email, name: users[email].name, type: "email" };
+        showFullscreenLoader("Signing in");
+        await delay(400);
+        await enterApp();
+        hideFullscreenLoader();
+        toast(`Welcome back, ${users[email].name}!`, "success");
+      }
+
+      // ============ GOOGLE ============
+      function initGoogleClient() {
+        const wait = setInterval(() => {
+          if (typeof google !== "undefined" && google.accounts) {
+            clearInterval(wait);
+            tokenClient = google.accounts.oauth2.initTokenClient({
+              client_id: CLIENT_ID,
+              scope: SCOPES,
+              callback: async (r) => {
+                if (r?.access_token) {
+                  accessToken = r.access_token;
+                  const expiresAt =
+                    Date.now() +
+                    (r.expires_in ? r.expires_in * 1000 : 3500 * 1000);
+                  localStorage.setItem(TOKEN_KEY, accessToken);
+                  localStorage.setItem(EXP_KEY, expiresAt);
+                  currentUser = { email: "Google User", type: "google" };
+                  showFullscreenLoader("Signing in");
+                  await delay(400);
+                  await enterApp();
+                  hideFullscreenLoader();
+                }
+                isSigningIn = false;
+              },
+              error_callback: (err) => {
+                isSigningIn = false;
+                console.warn("GIS error:", err);
+              },
+            });
+            const btn = document.getElementById("signInBtn");
+            if (btn)
+              btn.onclick = () => {
+                if (isSigningIn) return;
+                isSigningIn = true;
+                hideAuthMsg();
+                tokenClient.requestAccessToken({ prompt: "" });
+              };
+          }
+        }, 100);
+      }
+      function clearGoogleToken() {
+        accessToken = null;
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(EXP_KEY);
+        localStorage.removeItem(EMAIL_KEY);
+      }
+      async function verifyToken(token) {
+        try {
+          const r = await fetch(
+            "https://www.googleapis.com/drive/v3/about?fields=user",
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          return r.ok;
+        } catch {
+          return false;
+        }
+      }
+
+      // ============ APP ENTRY ============
+      async function enterApp() {
+        document.getElementById("loginOverlay").classList.add("hidden");
+        document.getElementById("appContent").classList.remove("hidden");
+
+        if (currentUser?.type === "google") {
+          try {
+            const r = await fetch(
+              "https://www.googleapis.com/oauth2/v3/userinfo",
+              { headers: { Authorization: `Bearer ${accessToken}` } },
+            );
+            if (r.ok) {
+              const info = await r.json();
+              currentUser.email = info.email;
+              localStorage.setItem(EMAIL_KEY, info.email);
+            }
+          } catch {}
+        }
+        updateUserUI(currentUser?.email || "");
+
+        await loadData();
+
+        if (!appData.purchases || !appData.purchases.length) {
+          appData.purchases = [];
+          createNewPurchase({ setActive: true, silent: true });
+        }
+        if (!appData.purchases.some((p) => p.active))
+          appData.purchases[0].active = true;
+
+        if (appData.people.length === 0) {
+          appData.people = [
+            "David",
+            "Prakash",
+            "Naveen",
+            "Guru",
+            "Harini",
+            "Logesh",
+            "Sathish",
+            "Gunesh",
+            "Yogi",
+            "Mari",
+          ];
+          await saveData();
+        }
+        render();
+        buildEntryForm();
+      }
+
+      function signOut() {
+        if (!confirm("Sign out? You will need to sign in again.")) return;
+        if (currentUser?.type === "google" && accessToken) {
+          try {
+            google.accounts.oauth2.revoke(accessToken, () => {});
+          } catch {}
+          clearGoogleToken();
+        }
+        if (currentUser?.type === "email") clearLocalSession();
+        currentUser = null;
+        document.getElementById("loginOverlay").classList.remove("hidden");
+        document.getElementById("appContent").classList.add("hidden");
+        document.getElementById("authEmail").value = "";
+        document.getElementById("authPassword").value = "";
+        document.getElementById("authName").value = "";
+        hideAuthMsg();
+      }
+
+      // ============ HELPERS ============
+      function today() {
+        return new Date().toISOString().slice(0, 10);
+      }
+      function monthKey(d) {
+        return (d || today()).slice(0, 7);
+      }
+      function fmt(n) {
+        return "₹" + Number(n).toFixed(2);
+      }
+      function monthName(k) {
+        if (!k) return "";
+        const [y, m] = k.split("-");
+        const names = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        return names[parseInt(m, 10) - 1] + " " + y;
+      }
+
+      function createRipple(e) {
+        const btn = e.currentTarget;
+        if (
+          !btn ||
+          btn.classList.contains("nav-tab") ||
+          btn.classList.contains("user-chip") ||
+          btn.classList.contains("login-tab") ||
+          btn.classList.contains("icon-btn")
+        )
+          return;
+        const circle = document.createElement("span");
+        const d = Math.max(btn.clientWidth, btn.clientHeight);
+        const r = btn.getBoundingClientRect();
+        circle.style.width = circle.style.height = d + "px";
+        circle.style.left = e.clientX - r.left - d / 2 + "px";
+        circle.style.top = e.clientY - r.top - d / 2 + "px";
+        circle.className = "ripple";
+        btn.appendChild(circle);
+        setTimeout(() => circle.remove(), 600);
+      }
+
+      function toast(msg, type = "info", timeout = 3200) {
+        const el = document.createElement("div");
+        el.className = "toast " + type;
+        const icons = { info: "ℹ️", success: "✅", warning: "⚠️", error: "❌" };
+        el.innerHTML = `<span class="toast-icon">${icons[type] || "ℹ️"}</span><div class="toast-body">${msg}</div>`;
+        document.getElementById("toastContainer").appendChild(el);
+        setTimeout(() => {
+          el.classList.add("removing");
+          setTimeout(() => el.remove(), 300);
+        }, timeout);
+      }
+
+      function animateValue(el, to) {
+        if (!el) return;
+        const skip = [
+          "dashRate",
+          "dashAmount",
+          "monthSpend",
+          "totalSpend",
+          "sumTotalSpend",
+        ];
+        if (skip.includes(el.id)) return;
+        const from = parseInt(el.dataset.val || "0") || 0;
+        if (from === to) return;
+        el.dataset.val = to;
+        const dur = 500;
+        const start = performance.now();
+        function step(now) {
+          const p = Math.min((now - start) / dur, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(from + (to - from) * eased);
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      function celebrate() {
+        const colors = [
+          "#fde047",
+          "#eab308",
+          "#10b981",
+          "#34d399",
+          "#8b5cf6",
+          "#3b82f6",
+        ];
+        for (let i = 0; i < 60; i++) {
+          const c = document.createElement("div");
+          c.className = "confetti";
+          c.style.left = Math.random() * 100 + "vw";
+          c.style.background =
+            colors[Math.floor(Math.random() * colors.length)];
+          c.style.animationDuration = 2 + Math.random() * 2 + "s";
+          c.style.animationDelay = Math.random() * 0.4 + "s";
+          c.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+          document.body.appendChild(c);
+          setTimeout(() => c.remove(), 5000);
+        }
+      }
+
+      function showAddPersonModal() {
+        const overlay = document.createElement("div");
+        overlay.className = "modal-overlay";
+        overlay.innerHTML = `
     <div class="modal">
       <h3>Add Person</h3>
       <input type="text" id="modalNameInput" placeholder="Person name" autofocus>
@@ -1321,500 +2360,684 @@ function showAddPersonModal() {
         <button class="btn-accent" id="modalConfirm">Add</button>
       </div>
     </div>`;
-  document.body.appendChild(overlay);
-  const input = overlay.querySelector('#modalNameInput');
-  setTimeout(() => input.focus(), 100);
-  const close = () => overlay.remove();
-  const confirm = () => {
-    const name = input.value.trim();
-    if (!name) return;
-    if (appData.people.includes(name)) { toast('Already exists', 'warning'); return; }
-    appData.people.push(name);
-    saveData(); render(); buildEntryForm();
-    toast(`Added ${name}`, 'success');
-    close();
-  };
-  overlay.querySelector('#modalCancel').onclick = close;
-  overlay.querySelector('#modalConfirm').onclick = confirm;
-  input.onkeydown = (e) => { if (e.key === 'Enter') confirm(); if (e.key === 'Escape') close(); };
-  overlay.onclick = (e) => { if (e.target === overlay) close(); };
-}
-
-// ============ DRIVE ============
-async function getFolderId() {
-  const q = `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
-  const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${accessToken}` } });
-  const d = await r.json();
-  if (d.files?.length) return d.files[0].id;
-  const c = await fetch('https://www.googleapis.com/drive/v3/files', {
-    method: 'POST', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
-  });
-  return (await c.json()).id;
-}
-async function getFileId(folderId) {
-  const q = `name='${DATA_FILE}' and '${folderId}' in parents and trashed=false`;
-  const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${accessToken}` } });
-  const d = await r.json();
-  return d.files?.length ? d.files[0].id : null;
-}
-function localDataKey() { return 'egg_data_' + (currentUser?.email || 'anon'); }
-
-async function loadData() {
-  if (currentUser?.type === 'google') {
-    try {
-      const folderId = await getFolderId();
-      const fileId = await getFileId(folderId);
-      if (fileId) {
-        const r = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${accessToken}` } });
-        if (r.ok) appData = { ...appData, ...(await r.json()) };
+        document.body.appendChild(overlay);
+        const input = overlay.querySelector("#modalNameInput");
+        setTimeout(() => input.focus(), 100);
+        const close = () => overlay.remove();
+        const confirm = () => {
+          const name = input.value.trim();
+          if (!name) return;
+          if (appData.people.includes(name)) {
+            toast("Already exists", "warning");
+            return;
+          }
+          appData.people.push(name);
+          saveData();
+          render();
+          buildEntryForm();
+          toast(`Added ${name}`, "success");
+          close();
+        };
+        overlay.querySelector("#modalCancel").onclick = close;
+        overlay.querySelector("#modalConfirm").onclick = confirm;
+        input.onkeydown = (e) => {
+          if (e.key === "Enter") confirm();
+          if (e.key === "Escape") close();
+        };
+        overlay.onclick = (e) => {
+          if (e.target === overlay) close();
+        };
       }
-    } catch(e) { console.error(e); }
-    migrateData();
-    return;
-  }
-  try {
-    const raw = localStorage.getItem(localDataKey());
-    if (raw) appData = { ...appData, ...JSON.parse(raw) };
-  } catch {}
-  migrateData();
-}
 
-function migrateData() {
-  // Move legacy 'history' → 'purchases'
-  if (Array.isArray(appData.history) && appData.history.length) {
-    if (!Array.isArray(appData.purchases)) appData.purchases = [];
-    for (const h of appData.history) {
-      if (!h) continue;
-      // Only add if not already present by id
-      if (!appData.purchases.some(p => p.id === h.id)) {
-        appData.purchases.push({ ...h, active: false });
+      // ============ DRIVE (per-user folder) ============
+      async function getFolderId() {
+        // Use a per-user folder name to isolate data
+        const userFolder =
+          FOLDER_NAME +
+          "_" +
+          (currentUser?.email || "anon").replace(/[^a-z0-9]/gi, "_");
+        const q = `name='${userFolder}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+        const r = await fetch(
+          `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`,
+          { headers: { Authorization: `Bearer ${accessToken}` } },
+        );
+        const d = await r.json();
+        if (d.files?.length) return d.files[0].id;
+        const c = await fetch("https://www.googleapis.com/drive/v3/files", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: userFolder,
+            mimeType: "application/vnd.google-apps.folder",
+          }),
+        });
+        return (await c.json()).id;
       }
-    }
-    appData.history = [];
-  }
-  if (!Array.isArray(appData.purchases)) appData.purchases = [];
-  // Ensure ids are unique
-  const seen = new Set();
-  appData.purchases = appData.purchases.filter(p => {
-    if (!p || !p.id || seen.has(p.id)) return false;
-    seen.add(p.id); return true;
-  });
-}
+      async function getFileId(folderId) {
+        const q = `name='${DATA_FILE}' and '${folderId}' in parents and trashed=false`;
+        const r = await fetch(
+          `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`,
+          { headers: { Authorization: `Bearer ${accessToken}` } },
+        );
+        const d = await r.json();
+        return d.files?.length ? d.files[0].id : null;
+      }
+      function localDataKey() {
+        // Per-user localStorage key
+        const id =
+          currentUser?.type === "google"
+            ? "g_" + (currentUser.email || "anon")
+            : "e_" + (currentUser?.email || "anon");
+        return "av_data_" + id;
+      }
 
-async function saveData() {
-  if (currentUser?.type === 'google') {
-    if (!accessToken) return;
-    setSync('Syncing…');
-    try {
-      const folderId = await getFolderId();
-      const fileId = await getFileId(folderId);
-      const meta = { name: DATA_FILE, mimeType: 'application/json' };
-      if (!fileId) meta.parents = [folderId];
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
-      form.append('file', new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' }));
-      const url = fileId
-        ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
-        : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
-      await fetch(url, { method: fileId ? 'PATCH' : 'POST', headers: { Authorization: `Bearer ${accessToken}` }, body: form });
-      setSync('Synced');
-    } catch(e) {
-      console.error('save err', e);
-      setSync('Sync failed');
-      toast('Save failed', 'error');
-    }
-    return;
-  }
-  try {
-    localStorage.setItem(localDataKey(), JSON.stringify(appData));
-    setSync('Saved');
-  } catch(e) {
-    console.error('save err', e);
-    toast('Save failed (storage full)', 'error');
-  }
-}
-function setSync(t) {
-  const a = document.getElementById('syncStatus'); if (a) a.textContent = t;
-  const b = document.getElementById('syncStatusMobile'); if (b) b.textContent = t;
-}
+      async function loadData() {
+        if (currentUser?.type === "google") {
+          try {
+            const folderId = await getFolderId();
+            const fileId = await getFileId(folderId);
+            if (fileId) {
+              const r = await fetch(
+                `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+                { headers: { Authorization: `Bearer ${accessToken}` } },
+              );
+              if (r.ok) appData = { ...appData, ...(await r.json()) };
+            }
+          } catch (e) {
+            console.error(e);
+          }
+          migrateData();
+          return;
+        }
+        try {
+          const raw = localStorage.getItem(localDataKey());
+          if (raw) appData = { ...appData, ...JSON.parse(raw) };
+        } catch {}
+        migrateData();
+      }
 
-// ============ PURCHASES ============
-function getActivePurchase() {
-  if (!appData.purchases) appData.purchases = [];
-  return appData.purchases.find(p => p.active) || appData.purchases[0] || null;
-}
-function createNewPurchase({ setActive = true, silent = false, price = 195 } = {}) {
-  if (setActive) appData.purchases.forEach(p => p.active = false);
-  const p = {
-    id: 'purchase_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-    price, eggsTotal: CARTON_SIZE, eggsUsed: 0,
-    startDate: today(), endDate: null,
-    consumption: {}, daily: {}, active: !!setActive
-  };
-  appData.purchases.unshift(p);
-  saveData();
-  if (!silent) toast('New purchase added', 'success');
-  return p;
-}
-function startNewPurchase() {
-  if (!confirm('Start a new purchase? The current active purchase will be closed and kept in history.')) return;
-  const active = getActivePurchase();
-  if (active && active.eggsUsed === 0) { toast('Current purchase is empty — using it', 'info'); return; }
-  if (active) {
-    active.active = false;
-    if (!active.endDate) active.endDate = today();
-  }
-  createNewPurchase({ setActive: true });
-  render(); buildEntryForm();
-  toast('New purchase started — old one saved to history', 'success');
-}
-function switchPurchase(id) {
-  appData.purchases.forEach(p => p.active = (p.id === id));
-  saveData(); render(); buildEntryForm();
-  toast('Switched purchase', 'success');
-}
-function updatePrice() {
-  const c = getActivePurchase();
-  if (!c) return;
-  const p = parseFloat(document.getElementById('cartonPriceInput').value);
-  if (p > 0) { c.price = p; saveData(); render(); toast('Price updated', 'success'); }
-}
-function closePurchase() {
-  const c = getActivePurchase();
-  if (!c) return;
-  if (c.eggsUsed === 0) return toast('No eggs used yet', 'warning');
-  if (!confirm(`Close purchase with ${c.eggsUsed}/${CARTON_SIZE} used? It stays in history.`)) return;
-  c.endDate = today();
-  c.active = false;
-  createNewPurchase({ setActive: true, silent: true });
-  celebrate();
-  toast('Purchase closed 🎉', 'success');
-  render(); buildEntryForm();
-}
+      function migrateData() {
+        if (Array.isArray(appData.history) && appData.history.length) {
+          if (!Array.isArray(appData.purchases)) appData.purchases = [];
+          for (const h of appData.history) {
+            if (!h) continue;
+            if (!appData.purchases.some((p) => p.id === h.id)) {
+              appData.purchases.push({ ...h, active: false });
+            }
+          }
+          appData.history = [];
+        }
+        if (!Array.isArray(appData.purchases)) appData.purchases = [];
+        const seen = new Set();
+        appData.purchases = appData.purchases.filter((p) => {
+          if (!p || !p.id || seen.has(p.id)) return false;
+          seen.add(p.id);
+          return true;
+        });
+      }
 
-// ============ ENTRY ============
-function buildEntryForm() {
-  const c = getActivePurchase();
-  const badge = document.getElementById('entryPurchaseBadge');
-  if (badge && c) badge.textContent = c.startDate + ' · ₹' + c.price;
+      async function saveData() {
+        if (currentUser?.type === "google") {
+          if (!accessToken) return;
+          setSync("Syncing…");
+          try {
+            const folderId = await getFolderId();
+            const fileId = await getFileId(folderId);
+            const meta = { name: DATA_FILE, mimeType: "application/json" };
+            if (!fileId) meta.parents = [folderId];
+            const form = new FormData();
+            form.append(
+              "metadata",
+              new Blob([JSON.stringify(meta)], { type: "application/json" }),
+            );
+            form.append(
+              "file",
+              new Blob([JSON.stringify(appData, null, 2)], {
+                type: "application/json",
+              }),
+            );
+            const url = fileId
+              ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+              : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+            await fetch(url, {
+              method: fileId ? "PATCH" : "POST",
+              headers: { Authorization: `Bearer ${accessToken}` },
+              body: form,
+            });
+            setSync("Synced");
+          } catch (e) {
+            console.error("save err", e);
+            setSync("Sync failed");
+            toast("Save failed", "error");
+          }
+          return;
+        }
+        try {
+          localStorage.setItem(localDataKey(), JSON.stringify(appData));
+          setSync("Saved");
+        } catch (e) {
+          console.error("save err", e);
+          toast("Save failed (storage full)", "error");
+        }
+      }
+      function setSync(t) {
+        const el = document.getElementById("syncStatus");
+        if (el) el.textContent = t;
+      }
 
-  const wrap = document.getElementById('entryList');
-  wrap.innerHTML = appData.people.map((p, i) => `
+      // ============ PURCHASES ============
+      function getActivePurchase() {
+        if (!appData.purchases) appData.purchases = [];
+        return (
+          appData.purchases.find((p) => p.active) ||
+          appData.purchases[0] ||
+          null
+        );
+      }
+      function createNewPurchase({
+        setActive = true,
+        silent = false,
+        price = 195,
+      } = {}) {
+        if (setActive) appData.purchases.forEach((p) => (p.active = false));
+        const p = {
+          id:
+            "purchase_" +
+            Date.now() +
+            "_" +
+            Math.random().toString(36).slice(2, 6),
+          price,
+          eggsTotal: CARTON_SIZE,
+          eggsUsed: 0,
+          startDate: today(),
+          endDate: null,
+          consumption: {},
+          daily: {},
+          active: !!setActive,
+        };
+        appData.purchases.unshift(p);
+        saveData();
+        if (!silent) toast("New purchase added", "success");
+        return p;
+      }
+      function startNewPurchase() {
+        if (
+          !confirm(
+            "Start a new purchase? The current active purchase will be closed and kept in history.",
+          )
+        )
+          return;
+        const active = getActivePurchase();
+        if (active && active.eggsUsed === 0) {
+          toast("Current purchase is empty — using it", "info");
+          return;
+        }
+        if (active) {
+          active.active = false;
+          if (!active.endDate) active.endDate = today();
+        }
+        createNewPurchase({ setActive: true });
+        render();
+        buildEntryForm();
+        toast("New purchase started — old one saved to history", "success");
+      }
+      function switchPurchase(id) {
+        appData.purchases.forEach((p) => (p.active = p.id === id));
+        saveData();
+        render();
+        buildEntryForm();
+        toast("Switched purchase", "success");
+      }
+      function updatePrice() {
+        const c = getActivePurchase();
+        if (!c) return;
+        const p = parseFloat(document.getElementById("cartonPriceInput").value);
+        if (p > 0) {
+          c.price = p;
+          saveData();
+          render();
+          toast("Price updated", "success");
+        }
+      }
+      function closePurchase() {
+        const c = getActivePurchase();
+        if (!c) return;
+        if (c.eggsUsed === 0) return toast("No eggs used yet", "warning");
+        if (
+          !confirm(
+            `Close purchase with ${c.eggsUsed}/${CARTON_SIZE} used? It stays in history.`,
+          )
+        )
+          return;
+        c.endDate = today();
+        c.active = false;
+        createNewPurchase({ setActive: true, silent: true });
+        celebrate();
+        toast("Purchase closed 🎉", "success");
+        render();
+        buildEntryForm();
+      }
+
+      // ============ ENTRY ============
+      function buildEntryForm() {
+        const c = getActivePurchase();
+        const badge = document.getElementById("entryPurchaseBadge");
+        if (badge && c) badge.textContent = c.startDate + " · ₹" + c.price;
+
+        const wrap = document.getElementById("entryList");
+        wrap.innerHTML = appData.people
+          .map(
+            (p, i) => `
     <div class="entry-row" style="animation-delay:${i * 0.02}s">
       <label>${p}</label>
       <input type="number" min="0" inputmode="numeric" data-person="${p}" placeholder="0">
-    </div>`).join('');
-  wrap.querySelectorAll('input').forEach(i => i.addEventListener('input', updateDailyTotals));
-  updateDailyTotals();
-}
-function loadDateForEdit() {
-  const c = getActivePurchase();
-  if (!c) return;
-  const date = document.getElementById('entryDate').value;
-  if (!date) return;
-  const day = c.daily?.[date] || {};
-  document.querySelectorAll('#entryList input').forEach(i => i.value = day[i.dataset.person] ?? '');
-  updateDailyTotals(); renderTodayList();
-}
-function clearEntryForm() {
-  document.querySelectorAll('#entryList input').forEach(i => i.value = '');
-  updateDailyTotals();
-}
-function updateDailyTotals() {
-  const c = getActivePurchase();
-  if (!c) return;
-  let sum = 0;
-  document.querySelectorAll('#entryList input').forEach(i => sum += parseInt(i.value) || 0);
-  document.getElementById('dailyTotals').textContent =
-    `This day: ${sum} eggs · Purchase: ${c.eggsUsed}/${CARTON_SIZE} · Left: ${Math.max(0, CARTON_SIZE - c.eggsUsed)}`;
-}
-function saveDailyEntry() {
-  const c = getActivePurchase();
-  if (!c) return;
-  const date = document.getElementById('entryDate').value;
-  if (!date) return toast('Pick a date', 'warning');
-  if (!c.daily) c.daily = {};
-  const day = {};
-  let dayTotal = 0;
-  document.querySelectorAll('#entryList input').forEach(i => {
-    const v = parseInt(i.value) || 0;
-    if (v > 0) { day[i.dataset.person] = v; dayTotal += v; }
-  });
-  const oldTotal = Object.values(c.daily[date] || {}).reduce((a,b) => a+b, 0);
-  const newUsed = c.eggsUsed - oldTotal + dayTotal;
-  if (newUsed > CARTON_SIZE) return toast(`Would exceed ${CARTON_SIZE}`, 'error');
-  c.daily[date] = day;
-  c.consumption = {};
-  for (const d of Object.values(c.daily)) {
-    for (const [p, v] of Object.entries(d)) c.consumption[p] = (c.consumption[p] || 0) + v;
-  }
-  c.eggsUsed = Object.values(c.consumption).reduce((a,b) => a+b, 0);
-  saveData(); render(); updateDailyTotals();
-  toast(`Saved ${date}: ${dayTotal} eggs`, 'success');
-}
-
-// ============ SPLIT & AGGREGATION ============
-function generateSplit(purchase) {
-  const rate = purchase.price / purchase.eggsTotal;
-  const lines = Object.entries(purchase.consumption).map(([name, eggs]) => ({ name, eggs, amount: eggs * rate }));
-  lines.sort((a,b) => b.amount - a.amount);
-  const total = lines.reduce((s,l) => s + l.amount, 0);
-  return { rate, lines, total };
-}
-function monthlyStats() {
-  const months = {};
-  const addPurchase = (carton) => {
-    if (!carton) return;
-    for (const [date, day] of Object.entries(carton.daily || {})) {
-      const m = monthKey(date);
-      if (!months[m]) months[m] = { eggs: 0, spend: 0, cartons: new Set(), people: new Set(), byPerson: {} };
-      for (const [p, eggs] of Object.entries(day)) {
-        const rate = carton.price / carton.eggsTotal;
-        months[m].eggs += eggs;
-        months[m].spend += eggs * rate;
-        months[m].cartons.add(carton.id);
-        months[m].people.add(p);
-        months[m].byPerson[p] = (months[m].byPerson[p] || 0) + eggs;
+    </div>`,
+          )
+          .join("");
+        wrap
+          .querySelectorAll("input")
+          .forEach((i) => i.addEventListener("input", updateDailyTotals));
+        updateDailyTotals();
       }
-    }
-  };
-  (appData.purchases || []).forEach(addPurchase);
-  return months;
-}
-function allTimeStats() {
-  let eggs = 0, spend = 0, months = new Set();
-  const byPerson = {};
-  const byPersonAmount = {};
-  for (const p of (appData.purchases || [])) {
-    const rate = p.price / p.eggsTotal;
-    for (const [date, day] of Object.entries(p.daily || {})) {
-      months.add(monthKey(date));
-      for (const [n, e] of Object.entries(day)) {
-        eggs += e;
-        spend += e * rate;
-        byPerson[n] = (byPerson[n] || 0) + e;
-        byPersonAmount[n] = (byPersonAmount[n] || 0) + e * rate;
+      function loadDateForEdit() {
+        const c = getActivePurchase();
+        if (!c) return;
+        const date = document.getElementById("entryDate").value;
+        if (!date) return;
+        const day = c.daily?.[date] || {};
+        document
+          .querySelectorAll("#entryList input")
+          .forEach((i) => (i.value = day[i.dataset.person] ?? ""));
+        updateDailyTotals();
+        renderTodayList();
       }
-    }
-  }
-  return { eggs, spend, months: months.size, byPerson, byPersonAmount, purchases: (appData.purchases || []).length };
-}
+      function clearEntryForm() {
+        document
+          .querySelectorAll("#entryList input")
+          .forEach((i) => (i.value = ""));
+        updateDailyTotals();
+      }
+      function updateDailyTotals() {
+        const c = getActivePurchase();
+        if (!c) return;
+        let sum = 0;
+        document
+          .querySelectorAll("#entryList input")
+          .forEach((i) => (sum += parseInt(i.value) || 0));
+        document.getElementById("dailyTotals").textContent =
+          `This day: ${sum} eggs · Purchase: ${c.eggsUsed}/${CARTON_SIZE} · Left: ${Math.max(0, CARTON_SIZE - c.eggsUsed)}`;
+      }
+      function saveDailyEntry() {
+        const c = getActivePurchase();
+        if (!c) return;
+        const date = document.getElementById("entryDate").value;
+        if (!date) return toast("Pick a date", "warning");
+        if (!c.daily) c.daily = {};
+        const day = {};
+        let dayTotal = 0;
+        document.querySelectorAll("#entryList input").forEach((i) => {
+          const v = parseInt(i.value) || 0;
+          if (v > 0) {
+            day[i.dataset.person] = v;
+            dayTotal += v;
+          }
+        });
+        const oldTotal = Object.values(c.daily[date] || {}).reduce(
+          (a, b) => a + b,
+          0,
+        );
+        const newUsed = c.eggsUsed - oldTotal + dayTotal;
+        if (newUsed > CARTON_SIZE)
+          return toast(`Would exceed ${CARTON_SIZE}`, "error");
+        c.daily[date] = day;
+        c.consumption = {};
+        for (const d of Object.values(c.daily)) {
+          for (const [p, v] of Object.entries(d))
+            c.consumption[p] = (c.consumption[p] || 0) + v;
+        }
+        c.eggsUsed = Object.values(c.consumption).reduce((a, b) => a + b, 0);
+        saveData();
+        render();
+        updateDailyTotals();
+        toast(`Saved ${date}: ${dayTotal} eggs`, "success");
+      }
 
-// ============ RENDER ============
-function render() {
-  renderPurchaseSelector();
-  renderDashboard();
-  renderPurchasesTab();
-  renderPeopleTab();
-  renderReports();
-  renderSummary();
-  renderTodayList();
-}
-function switchTab(name) {
-  document.querySelectorAll('.nav-item').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.nav-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  const panel = document.getElementById('tab-' + name);
-  document.querySelectorAll('.tab-panel').forEach(p => {
-    if (p === panel) {
-      p.classList.remove('hidden');
-      p.style.animation = 'none'; void p.offsetWidth; p.style.animation = '';
-    } else p.classList.add('hidden');
-  });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-function renderPurchaseSelector() {
-  const sel = document.getElementById('purchaseSelector');
-  if (!sel) return;
-  const active = getActivePurchase();
-  sel.innerHTML = (appData.purchases || []).map(p => {
-    const label = `₹${p.price} · ${p.startDate}${p.endDate ? ' → ' + p.endDate : ' (active)'} · ${p.eggsUsed}/${CARTON_SIZE}`;
-    return `<option value="${p.id}" ${p.id === active?.id ? 'selected' : ''}>${label}</option>`;
-  }).join('');
-}
-function renderDashboard() {
-  const c = getActivePurchase();
-  if (!c) return;
-  const rate = c.price / c.eggsTotal;
-  const pct = (c.eggsUsed / CARTON_SIZE) * 100;
+      // ============ SPLIT & AGGREGATION ============
+      function generateSplit(purchase) {
+        const rate = purchase.price / purchase.eggsTotal;
+        const lines = Object.entries(purchase.consumption || {}).map(
+          ([name, eggs]) => ({ name, eggs, amount: eggs * rate }),
+        );
+        lines.sort((a, b) => b.amount - a.amount);
+        const total = lines.reduce((s, l) => s + l.amount, 0);
+        return { rate, lines, total };
+      }
+      function monthlyStats() {
+        const months = {};
+        const addPurchase = (carton) => {
+          if (!carton) return;
+          for (const [date, day] of Object.entries(carton.daily || {})) {
+            const m = monthKey(date);
+            if (!months[m])
+              months[m] = {
+                eggs: 0,
+                spend: 0,
+                cartons: new Set(),
+                people: new Set(),
+                byPerson: {},
+              };
+            for (const [p, eggs] of Object.entries(day)) {
+              const rate = carton.price / carton.eggsTotal;
+              months[m].eggs += eggs;
+              months[m].spend += eggs * rate;
+              months[m].cartons.add(carton.id);
+              months[m].people.add(p);
+              months[m].byPerson[p] = (months[m].byPerson[p] || 0) + eggs;
+            }
+          }
+        };
+        (appData.purchases || []).forEach(addPurchase);
+        return months;
+      }
+      function allTimeStats() {
+        let eggs = 0,
+          spend = 0,
+          months = new Set();
+        const byPerson = {};
+        const byPersonAmount = {};
+        for (const p of appData.purchases || []) {
+          const rate = p.price / p.eggsTotal;
+          for (const [date, day] of Object.entries(p.daily || {})) {
+            months.add(monthKey(date));
+            for (const [n, e] of Object.entries(day)) {
+              eggs += e;
+              spend += e * rate;
+              byPerson[n] = (byPerson[n] || 0) + e;
+              byPersonAmount[n] = (byPersonAmount[n] || 0) + e * rate;
+            }
+          }
+        }
+        return {
+          eggs,
+          spend,
+          months: months.size,
+          byPerson,
+          byPersonAmount,
+          purchases: (appData.purchases || []).length,
+        };
+      }
 
-  animateValue(document.getElementById('dashUsed'), c.eggsUsed);
-  animateValue(document.getElementById('dashLeft'), Math.max(0, CARTON_SIZE - c.eggsUsed));
-  document.getElementById('dashRate').textContent = '₹' + rate.toFixed(2);
-  document.getElementById('dashPrice').textContent = '₹' + c.price + ' carton';
-  document.getElementById('dashAmount').textContent = fmt(c.eggsUsed * rate);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = pct.toFixed(0) + '% used';
-  document.getElementById('progressText').textContent = `${c.eggsUsed} / ${CARTON_SIZE}`;
-  document.getElementById('purchaseStatus').textContent = c.eggsUsed >= CARTON_SIZE ? 'Full' : 'Active';
+      // ============ RENDER ============
+      function render() {
+        renderPurchaseSelector();
+        renderDashboard();
+        renderPurchasesTab();
+        renderPeopleTab();
+        renderReports();
+        renderSummary();
+        renderTodayList();
+      }
+      function switchTab(name) {
+        document
+          .querySelectorAll(".nav-tab")
+          .forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
+        const panel = document.getElementById("tab-" + name);
+        document.querySelectorAll(".tab-panel").forEach((p) => {
+          if (p === panel) {
+            p.classList.remove("hidden");
+            p.style.animation = "none";
+            void p.offsetWidth;
+            p.style.animation = "";
+          } else p.classList.add("hidden");
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      function renderPurchaseSelector() {
+        const sel = document.getElementById("purchaseSelector");
+        if (!sel) return;
+        const active = getActivePurchase();
+        sel.innerHTML = (appData.purchases || [])
+          .map((p) => {
+            const label = `₹${p.price} · ${p.startDate}${p.endDate ? " → " + p.endDate : " (active)"} · ${p.eggsUsed}/${CARTON_SIZE}`;
+            return `<option value="${p.id}" ${p.id === active?.id ? "selected" : ""}>${label}</option>`;
+          })
+          .join("");
+      }
+      function renderDashboard() {
+        const c = getActivePurchase();
+        if (!c) return;
+        const rate = c.price / c.eggsTotal;
+        const pct = (c.eggsUsed / CARTON_SIZE) * 100;
 
-  const m = monthKey();
-  const months = monthlyStats();
-  const ms = months[m] || { eggs: 0, spend: 0, cartons: new Set(), people: new Set() };
-  document.getElementById('monthLabel').textContent = monthName(m);
-  animateValue(document.getElementById('monthEggs'), ms.eggs);
-  document.getElementById('monthSpend').textContent = fmt(ms.spend);
-  animateValue(document.getElementById('monthCartons'), ms.cartons.size);
-  animateValue(document.getElementById('monthPeople'), ms.people.size);
+        animateValue(document.getElementById("dashUsed"), c.eggsUsed);
+        animateValue(
+          document.getElementById("dashLeft"),
+          Math.max(0, CARTON_SIZE - c.eggsUsed),
+        );
+        document.getElementById("dashRate").textContent = "₹" + rate.toFixed(2);
+        document.getElementById("dashPrice").textContent =
+          "₹" + c.price + " carton";
+        document.getElementById("dashAmount").textContent = fmt(
+          c.eggsUsed * rate,
+        );
+        document.getElementById("progressBar").style.width = pct + "%";
+        document.getElementById("progressLabel").textContent =
+          pct.toFixed(0) + "% used";
+        document.getElementById("progressText").textContent =
+          `${c.eggsUsed} / ${CARTON_SIZE}`;
+        document.getElementById("purchaseStatus").textContent =
+          c.eggsUsed >= CARTON_SIZE ? "Full" : "Active";
 
-  const top = Object.entries(ms.byPerson || {}).sort((a,b) => b[1] - a[1]).slice(0,5);
-  const el = document.getElementById('topConsumers');
-  if (!top.length) el.innerHTML = '<div class="empty">No entries this month yet</div>';
-  else {
-    const rate2 = c.price / c.eggsTotal;
-    el.innerHTML = `<table><tbody>${top.map(([n, eggs], i) => `
+        const m = monthKey();
+        const months = monthlyStats();
+        const ms = months[m] || {
+          eggs: 0,
+          spend: 0,
+          cartons: new Set(),
+          people: new Set(),
+        };
+        document.getElementById("monthLabel").textContent = monthName(m);
+        animateValue(document.getElementById("monthEggs"), ms.eggs);
+        document.getElementById("monthSpend").textContent = fmt(ms.spend);
+        animateValue(document.getElementById("monthCartons"), ms.cartons.size);
+        animateValue(document.getElementById("monthPeople"), ms.people.size);
+
+        const top = Object.entries(ms.byPerson || {})
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5);
+        const el = document.getElementById("topConsumers");
+        if (!top.length)
+          el.innerHTML = '<div class="empty">No entries this month yet</div>';
+        else {
+          const rate2 = c.price / c.eggsTotal;
+          el.innerHTML = `<table><tbody>${top
+            .map(
+              ([n, eggs], i) => `
       <tr style="animation-delay:${i * 0.04}s">
-        <td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span>${n}</td>
+        <td><span class="rank ${i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : ""}">${i + 1}</span>${n}</td>
         <td class="num">${eggs} eggs</td>
         <td class="amount">${fmt(eggs * rate2)}</td>
-      </tr>`).join('')}</tbody></table>`;
-  }
+      </tr>`,
+            )
+            .join("")}</tbody></table>`;
+        }
 
-  const all = allTimeStats();
-  animateValue(document.getElementById('totalEggs'), all.eggs);
-  document.getElementById('totalSpend').textContent = fmt(all.spend);
-  animateValue(document.getElementById('totalPurchases'), all.purchases);
-  animateValue(document.getElementById('totalMonths'), all.months);
-}
-function renderTodayList() {
-  const c = getActivePurchase();
-  if (!c) return;
-  const date = document.getElementById('entryDate').value || today();
-  const day = c.daily?.[date] || {};
-  const el = document.getElementById('todayList');
-  document.getElementById('todayBadge').textContent = date;
-  if (!Object.keys(day).length) el.innerHTML = '<div class="empty">No entries for this date</div>';
-  else {
-    const rate = c.price / c.eggsTotal;
-    el.innerHTML = `<table><tbody>${Object.entries(day).map(([n, e], i) => `
-      <tr style="animation-delay:${i * 0.04}s"><td>${n}</td><td class="num">${e} eggs</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}</tbody></table>`;
-  }
-}
-function renderPurchasesTab() {
-  const c = getActivePurchase();
-  if (c) {
-    document.getElementById('cartonPriceInput').value = c.price;
-    const { lines, total } = generateSplit(c);
-    const el = document.getElementById('currentCartonDetail');
-    if (!lines.length) el.innerHTML = '<div class="empty">No eggs logged in this purchase yet</div>';
-    else {
-      el.innerHTML = `
+        const all = allTimeStats();
+        animateValue(document.getElementById("totalEggs"), all.eggs);
+        document.getElementById("totalSpend").textContent = fmt(all.spend);
+        animateValue(document.getElementById("totalPurchases"), all.purchases);
+        animateValue(document.getElementById("totalMonths"), all.months);
+      }
+      function renderTodayList() {
+        const c = getActivePurchase();
+        if (!c) return;
+        const date = document.getElementById("entryDate").value || today();
+        const day = c.daily?.[date] || {};
+        const el = document.getElementById("todayList");
+        document.getElementById("todayBadge").textContent = date;
+        if (!Object.keys(day).length)
+          el.innerHTML = '<div class="empty">No entries for this date</div>';
+        else {
+          const rate = c.price / c.eggsTotal;
+          el.innerHTML = `<table><tbody>${Object.entries(day)
+            .map(
+              ([n, e], i) => `
+      <tr style="animation-delay:${i * 0.04}s"><td>${n}</td><td class="num">${e} eggs</td><td class="amount">${fmt(e * rate)}</td></tr>`,
+            )
+            .join("")}</tbody></table>`;
+        }
+      }
+      function renderPurchasesTab() {
+        const c = getActivePurchase();
+        if (c) {
+          document.getElementById("cartonPriceInput").value = c.price;
+          const { lines, total } = generateSplit(c);
+          const el = document.getElementById("currentCartonDetail");
+          if (!lines.length)
+            el.innerHTML =
+              '<div class="empty">No eggs logged in this purchase yet</div>';
+          else {
+            el.innerHTML = `
         <table><thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead><tbody>
-          ${lines.map((l, i) => `<tr style="animation-delay:${i * 0.03}s"><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}
+          ${lines.map((l, i) => `<tr style="animation-delay:${i * 0.03}s"><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join("")}
           <tr><td><strong>Total</strong></td><td class="num"><strong>${c.eggsUsed}</strong></td><td class="amount"><strong>${fmt(total)}</strong></td></tr>
         </tbody></table>
         <button class="btn-accent btn-sm" style="margin-top:12px;" onclick="copySplit('${c.id}')">📋 Copy Split for GPay</button>
       `;
-    }
-  }
-  const list = document.getElementById('purchaseList');
-  const purchases = appData.purchases || [];
-  document.getElementById('purchaseCount').textContent = purchases.length;
-  if (!purchases.length) list.innerHTML = '<div class="empty">No purchases yet</div>';
-  else {
-    list.innerHTML = purchases.map((p, i) => {
-      const { lines, total } = generateSplit(p);
-      const isActive = p.active;
-      return `
-      <div class="carton-card ${isActive ? 'active-purchase' : 'closed'}" style="animation-delay:${i * 0.04}s" onclick="togglePurchaseBody('${p.id}')">
+          }
+        }
+        const list = document.getElementById("purchaseList");
+        const purchases = appData.purchases || [];
+        document.getElementById("purchaseCount").textContent = purchases.length;
+        if (!purchases.length)
+          list.innerHTML = '<div class="empty">No purchases yet</div>';
+        else {
+          list.innerHTML = purchases
+            .map((p, i) => {
+              const { lines, total } = generateSplit(p);
+              const isActive = p.active;
+              return `
+      <div class="carton-card ${isActive ? "active-purchase" : "closed"}" style="animation-delay:${i * 0.04}s" onclick="togglePurchaseBody('${p.id}')">
         <div class="carton-head">
           <div>
-            <div class="carton-title">${isActive ? '● Active Purchase' : 'Purchase'} · ₹${p.price}</div>
-            <div class="carton-meta">${p.startDate}${p.endDate ? ' → ' + p.endDate : ''} · ${p.eggsUsed}/${CARTON_SIZE} eggs · ${Object.keys(p.consumption || {}).length} people</div>
+            <div class="carton-title">${isActive ? "● Active Purchase" : "Purchase"} · ₹${p.price}</div>
+            <div class="carton-meta">${p.startDate}${p.endDate ? " → " + p.endDate : ""} · ${p.eggsUsed}/${CARTON_SIZE} eggs · ${Object.keys(p.consumption || {}).length} people</div>
           </div>
           <div class="carton-amount">${fmt(total)}</div>
         </div>
         <div class="carton-body" id="purchase-body-${p.id}">
           <div>
-            ${lines.length ? `<table><tbody>${lines.map(l => `<tr><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty" style="padding:20px;">No entries</div>'}
+            ${lines.length ? `<table><tbody>${lines.map((l) => `<tr><td>${l.name}</td><td class="num">${l.eggs}</td><td class="amount">${fmt(l.amount)}</td></tr>`).join("")}</tbody></table>` : '<div class="empty" style="padding:20px;">No entries</div>'}
             <div style="display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;">
-              ${lines.length ? `<button class="btn-accent btn-sm" onclick="event.stopPropagation(); copySplit('${p.id}')">📋 Copy for GPay</button>` : ''}
-              ${!isActive ? `<button class="btn-ghost btn-sm" onclick="event.stopPropagation(); setActive('${p.id}')">Set Active</button>` : ''}
+              ${lines.length ? `<button class="btn-accent btn-sm" onclick="event.stopPropagation(); copySplit('${p.id}')">📋 Copy for GPay</button>` : ""}
+              ${!isActive ? `<button class="btn-ghost btn-sm" onclick="event.stopPropagation(); setActive('${p.id}')">Set Active</button>` : ""}
             </div>
           </div>
         </div>
       </div>`;
-    }).join('');
-  }
-}
-function togglePurchaseBody(id) {
-  const el = document.getElementById('purchase-body-' + id);
-  if (el) el.classList.toggle('open');
-}
-function setActive(id) {
-  appData.purchases.forEach(p => p.active = (p.id === id));
-  saveData(); render(); buildEntryForm();
-  toast('Purchase set as active', 'success');
-}
-function copySplit(id) {
-  const p = (appData.purchases || []).find(x => x.id === id);
-  if (!p) return;
-  const { lines, total } = generateSplit(p);
-  const title = p.endDate
-    ? `Egg Split (${p.startDate} → ${p.endDate})`
-    : `Egg Split (active purchase, ${p.startDate})`;
-  const text = `${title}\nPer egg: ₹${(p.price/p.eggsTotal).toFixed(2)}\n\n` +
-    lines.map(l => `${l.name}: ${l.eggs} eggs = ₹${l.amount.toFixed(2)}`).join('\n') +
-    `\n\nTotal: ₹${total.toFixed(2)}`;
-  navigator.clipboard.writeText(text).then(() => toast('Copied for GPay', 'success'));
-}
-function renderPeopleTab() {
-  const all = allTimeStats();
-  const grid = document.getElementById('peopleGrid');
-  const entries = Object.entries(all.byPerson).sort((a,b) => all.byPersonAmount[b[0]] - all.byPersonAmount[a[0]]);
-  if (!entries.length) {
-    grid.innerHTML = '<div class="empty">No data yet. Add entries to see person summaries.</div>';
-    return;
-  }
-  // Compute per-person months + purchases count
-  const meta = {};
-  for (const p of (appData.purchases || [])) {
-    for (const [date, day] of Object.entries(p.daily || {})) {
-      for (const n of Object.keys(day)) {
-        if (!meta[n]) meta[n] = { cartons: new Set(), months: new Set() };
-        meta[n].cartons.add(p.id);
-        meta[n].months.add(monthKey(date));
+            })
+            .join("");
+        }
       }
-    }
-  }
-  grid.innerHTML = entries.map(([name, eggs], i) => {
-    const amt = all.byPersonAmount[name] || 0;
-    const m = meta[name] || { cartons: new Set(), months: new Set() };
-    return `
+      function togglePurchaseBody(id) {
+        const el = document.getElementById("purchase-body-" + id);
+        if (el) el.classList.toggle("open");
+      }
+      function setActive(id) {
+        appData.purchases.forEach((p) => (p.active = p.id === id));
+        saveData();
+        render();
+        buildEntryForm();
+        toast("Purchase set as active", "success");
+      }
+      function copySplit(id) {
+        const p = (appData.purchases || []).find((x) => x.id === id);
+        if (!p) return;
+        const { lines, total } = generateSplit(p);
+        const title = p.endDate
+          ? `Egg Split (${p.startDate} → ${p.endDate})`
+          : `Egg Split (active purchase, ${p.startDate})`;
+        const text =
+          `${title}\nPer egg: ₹${(p.price / p.eggsTotal).toFixed(2)}\n\n` +
+          lines
+            .map((l) => `${l.name}: ${l.eggs} eggs = ₹${l.amount.toFixed(2)}`)
+            .join("\n") +
+          `\n\nTotal: ₹${total.toFixed(2)}`;
+        navigator.clipboard
+          .writeText(text)
+          .then(() => toast("Copied for GPay", "success"));
+      }
+      function renderPeopleTab() {
+        const all = allTimeStats();
+        const grid = document.getElementById("peopleGrid");
+        const entries = Object.entries(all.byPerson).sort(
+          (a, b) => all.byPersonAmount[b[0]] - all.byPersonAmount[a[0]],
+        );
+        if (!entries.length) {
+          grid.innerHTML =
+            '<div class="empty">No data yet. Add entries to see person summaries.</div>';
+          return;
+        }
+        const meta = {};
+        for (const p of appData.purchases || []) {
+          for (const [date, day] of Object.entries(p.daily || {})) {
+            for (const n of Object.keys(day)) {
+              if (!meta[n]) meta[n] = { cartons: new Set(), months: new Set() };
+              meta[n].cartons.add(p.id);
+              meta[n].months.add(monthKey(date));
+            }
+          }
+        }
+        grid.innerHTML = entries
+          .map(([name, eggs], i) => {
+            const amt = all.byPersonAmount[name] || 0;
+            const m = meta[name] || { cartons: new Set(), months: new Set() };
+            return `
     <div class="person-card" style="animation-delay:${i * 0.04}s">
-      <div class="name">${name} <span class="tagline">${m.cartons.size} purchase${m.cartons.size!==1?'s':''}</span></div>
+      <div class="name">${name} <span class="tagline">${m.cartons.size} purchase${m.cartons.size !== 1 ? "s" : ""}</span></div>
       <div class="metrics">
         <div class="metric"><div class="metric-label">Eggs</div><div class="metric-value">${eggs}</div></div>
-        <div class="metric"><div class="metric-label">Amount</div><div class="metric-value" style="color:#047857;">${fmt(amt)}</div></div>
+        <div class="metric"><div class="metric-label">Amount</div><div class="metric-value" style="color:var(--accent-deep);">${fmt(amt)}</div></div>
         <div class="metric"><div class="metric-label">Months</div><div class="metric-value">${m.months.size}</div></div>
         <div class="metric"><div class="metric-label">Avg/mo</div><div class="metric-value">${fmt(amt / Math.max(1, m.months.size))}</div></div>
       </div>
     </div>`;
-  }).join('');
-}
-function renderReports() {
-  const months = monthlyStats();
-  const sel = document.getElementById('reportMonth');
-  const keys = Object.keys(months).sort().reverse();
-  const current = sel.value;
-  sel.innerHTML = keys.length
-    ? keys.map(k => `<option value="${k}" ${k===current?'selected':''}>${monthName(k)}</option>`).join('')
-    : '<option value="">No data</option>';
-  const key = sel.value || keys[0];
-  const el = document.getElementById('monthReport');
-  if (!key || !months[key]) { el.innerHTML = '<div class="empty">No data</div>'; }
-  else {
-    const m = months[key];
-    const byPersonAmount = {};
-    for (const p of (appData.purchases || [])) {
-      const r = p.price / p.eggsTotal;
-      for (const [date, day] of Object.entries(p.daily || {})) {
-        if (monthKey(date) !== key) continue;
-        for (const [n, e] of Object.entries(day)) byPersonAmount[n] = (byPersonAmount[n] || 0) + e * r;
+          })
+          .join("");
       }
-    }
-    const lines = Object.entries(m.byPerson).sort((a,b) => b[1] - a[1]);
-    el.innerHTML = `
+      function renderReports() {
+        const months = monthlyStats();
+        const sel = document.getElementById("reportMonth");
+        const keys = Object.keys(months).sort().reverse();
+        const current = sel.value;
+        sel.innerHTML = keys.length
+          ? keys
+              .map(
+                (k) =>
+                  `<option value="${k}" ${k === current ? "selected" : ""}>${monthName(k)}</option>`,
+              )
+              .join("")
+          : '<option value="">No data</option>';
+        const key = sel.value || keys[0];
+        const el = document.getElementById("monthReport");
+        if (!key || !months[key]) {
+          el.innerHTML = '<div class="empty">No data</div>';
+        } else {
+          const m = months[key];
+          const byPersonAmount = {};
+          for (const p of appData.purchases || []) {
+            const r = p.price / p.eggsTotal;
+            for (const [date, day] of Object.entries(p.daily || {})) {
+              if (monthKey(date) !== key) continue;
+              for (const [n, e] of Object.entries(day))
+                byPersonAmount[n] = (byPersonAmount[n] || 0) + e * r;
+            }
+          }
+          const lines = Object.entries(m.byPerson).sort((a, b) => b[1] - a[1]);
+          el.innerHTML = `
       <div class="stat-grid" style="margin-bottom:16px;">
         <div class="stat primary"><div class="stat-label">Eggs</div><div class="stat-value">${m.eggs}</div></div>
         <div class="stat success"><div class="stat-label">Spend</div><div class="stat-value" style="font-size:18px;">${fmt(m.spend)}</div></div>
@@ -1822,76 +3045,96 @@ function renderReports() {
         <div class="stat accent"><div class="stat-label">People</div><div class="stat-value">${m.people.size}</div></div>
       </div>
       <table><thead><tr><th>Person</th><th>Eggs</th><th>Amount</th></tr></thead><tbody>
-        ${lines.map(([n, e], i) => `<tr style="animation-delay:${i * 0.03}s"><td>${n}</td><td class="num">${e}</td><td class="amount">${fmt(byPersonAmount[n] || 0)}</td></tr>`).join('')}
+        ${lines.map(([n, e], i) => `<tr style="animation-delay:${i * 0.03}s"><td>${n}</td><td class="num">${e}</td><td class="amount">${fmt(byPersonAmount[n] || 0)}</td></tr>`).join("")}
       </tbody></table>`;
-  }
-  const all = allTimeStats();
-  const lb = Object.entries(all.byPersonAmount).sort((a,b) => b[1] - a[1]).slice(0,10);
-  const lbEl = document.getElementById('leaderboard');
-  if (!lb.length) lbEl.innerHTML = '<div class="empty">No data</div>';
-  else lbEl.innerHTML = `<table><tbody>${lb.map(([n, amt], i) => `
+        }
+        const all = allTimeStats();
+        const lb = Object.entries(all.byPersonAmount)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10);
+        const lbEl = document.getElementById("leaderboard");
+        if (!lb.length) lbEl.innerHTML = '<div class="empty">No data</div>';
+        else
+          lbEl.innerHTML = `<table><tbody>${lb
+            .map(
+              ([n, amt], i) => `
     <tr style="animation-delay:${i * 0.04}s">
-      <td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span>${n}</td>
+      <td><span class="rank ${i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : ""}">${i + 1}</span>${n}</td>
       <td class="amount" style="text-align:right;">${fmt(amt)}</td>
     </tr>
-  `).join('')}</tbody></table>`;
-}
-function renderSummary() {
-  const all = allTimeStats();
-  animateValue(document.getElementById('sumTotalEggs'), all.eggs);
-  document.getElementById('sumTotalSpend').textContent = fmt(all.spend);
-  animateValue(document.getElementById('sumPurchases'), all.purchases);
-  animateValue(document.getElementById('sumPeople'), Object.keys(all.byPerson).length);
+  `,
+            )
+            .join("")}</tbody></table>`;
+      }
+      function renderSummary() {
+        const all = allTimeStats();
+        animateValue(document.getElementById("sumTotalEggs"), all.eggs);
+        document.getElementById("sumTotalSpend").textContent = fmt(all.spend);
+        animateValue(document.getElementById("sumPurchases"), all.purchases);
+        animateValue(
+          document.getElementById("sumPeople"),
+          Object.keys(all.byPerson).length,
+        );
 
-  // Per-person all-time table
-  const entries = Object.entries(all.byPersonAmount).sort((a,b) => b[1] - a[1]);
-  const tbl = document.getElementById('summaryPeopleTable');
-  if (!entries.length) tbl.innerHTML = '<div class="empty">No data yet</div>';
-  else {
-    tbl.innerHTML = `<table>
+        const entries = Object.entries(all.byPersonAmount).sort(
+          (a, b) => b[1] - a[1],
+        );
+        const tbl = document.getElementById("summaryPeopleTable");
+        if (!entries.length)
+          tbl.innerHTML = '<div class="empty">No data yet</div>';
+        else {
+          tbl.innerHTML = `<table>
       <thead><tr><th>#</th><th>Person</th><th>Eggs</th><th>Amount</th><th>Share</th></tr></thead>
-      <tbody>${entries.map(([n, amt], i) => {
-        const eggs = all.byPerson[n] || 0;
-        const share = all.spend > 0 ? (amt / all.spend * 100) : 0;
-        return `<tr style="animation-delay:${i * 0.03}s">
-          <td><span class="rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${i+1}</span></td>
+      <tbody>${entries
+        .map(([n, amt], i) => {
+          const eggs = all.byPerson[n] || 0;
+          const share = all.spend > 0 ? (amt / all.spend) * 100 : 0;
+          return `<tr style="animation-delay:${i * 0.03}s">
+          <td><span class="rank ${i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : ""}">${i + 1}</span></td>
           <td>${n}</td>
           <td class="num">${eggs}</td>
           <td class="amount">${fmt(amt)}</td>
           <td class="num">${share.toFixed(1)}%</td>
         </tr>`;
-      }).join('')}</tbody>
+        })
+        .join("")}</tbody>
     </table>`;
-  }
+        }
 
-  // Monthly breakdown
-  const months = monthlyStats();
-  const keys = Object.keys(months).sort().reverse();
-  const mEl = document.getElementById('summaryMonthly');
-  if (!keys.length) mEl.innerHTML = '<div class="empty">No data yet</div>';
-  else {
-    mEl.innerHTML = `<table>
+        const months = monthlyStats();
+        const keys = Object.keys(months).sort().reverse();
+        const mEl = document.getElementById("summaryMonthly");
+        if (!keys.length)
+          mEl.innerHTML = '<div class="empty">No data yet</div>';
+        else {
+          mEl.innerHTML = `<table>
       <thead><tr><th>Month</th><th>Eggs</th><th>Spend</th><th>Purchases</th><th>People</th></tr></thead>
-      <tbody>${keys.map((k, i) => {
-        const m = months[k];
-        return `<tr style="animation-delay:${i * 0.03}s">
+      <tbody>${keys
+        .map((k, i) => {
+          const m = months[k];
+          return `<tr style="animation-delay:${i * 0.03}s">
           <td><strong>${monthName(k)}</strong></td>
           <td class="num">${m.eggs}</td>
           <td class="amount">${fmt(m.spend)}</td>
           <td class="num">${m.cartons.size}</td>
           <td class="num">${m.people.size}</td>
         </tr>`;
-      }).join('')}</tbody>
+        })
+        .join("")}</tbody>
     </table>`;
-  }
-}
-async function manualRefresh() {
-  const fab = document.getElementById('refreshFab');
-  fab.innerHTML = `<div class="easter-animation small"><div class="egg"><div class="eyes"></div></div><div class="shadow"></div></div>`;
-  await loadData(); render(); buildEntryForm();
-  setTimeout(() => { fab.innerHTML = '🔄'; }, 600);
-  toast('Refreshed', 'success');
-}
-</script>
-</body>
+        }
+      }
+      async function manualRefresh() {
+        const btn = document.getElementById("refreshBtn");
+        if (btn) btn.classList.add("spin");
+        await loadData();
+        render();
+        buildEntryForm();
+        setTimeout(() => {
+          if (btn) btn.classList.remove("spin");
+        }, 600);
+        toast("Refreshed", "success");
+      }
+    </script>
+  </body>
 </html>
