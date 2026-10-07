@@ -45,10 +45,162 @@
         #fffbeb;
     }
   }
+
+  /* ============================================================= */
+  /* EASTER EGG LOADER (from Uiverse by forzayt)                   */
+  /* ============================================================= */
+  .easter-animation {
+    position: relative;
+    width: 150px;
+    height: 220px;
+    margin: 0 auto;
+  }
+  .easter-animation .egg {
+    position: relative;
+    width: 150px;
+    height: 200px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: linear-gradient(
+      295deg,
+      #ff595e 15%, #8ac926 15%, #8ac926 30%, #ff595e 30%,
+      #ff595e 49%, #8ac926 49%, #8ac926 70%, #ff595e 70%
+    );
+    overflow: hidden;
+    animation: egg-bounce 1s linear infinite;
+  }
+  .easter-animation .egg:before,
+  .easter-animation .egg:after {
+    position: absolute;
+    content: "";
+  }
+  .easter-animation .egg:before {
+    width: 200px;
+    height: 100px;
+    background-color: #1982c4;
+    top: 160px;
+    box-shadow: 0 -50px #ffca3a, 0 -65px #8ac926, 0 -90px #6a4c93, 0 -95px #ffca3a;
+  }
+  .easter-animation .egg:after {
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    background-color: #ffca3a;
+    left: 90px;
+    top: 75px;
+    box-shadow: -40px 0 #ffca3a, 40px 0 #ffca3a, -80px 0 #ffca3a, -120px 0 #ffca3a;
+  }
+  .easter-animation .eyes {
+    position: absolute;
+    background-color: #333;
+    border-radius: 50%;
+    width: 20px;
+    height: 30px;
+    left: 90px;
+    top: 120px;
+    box-shadow: 20px 0 #333;
+  }
+  .easter-animation .eyes:before {
+    position: absolute;
+    content: "";
+    background-color: #fff;
+    width: 5px;
+    height: 12px;
+    border-radius: 50%;
+    left: 12px;
+    top: 10px;
+    box-shadow: 20px 0 #fff;
+  }
+  .easter-animation .eyes:after {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 30px;
+    background-color: #1982c4;
+    top: -130px;
+    left: -100px;
+  }
+  .easter-animation .shadow {
+    position: absolute;
+    z-index: -1;
+    background-color: rgba(0, 0, 0, 0.2);
+    width: 100px;
+    height: 20px;
+    border-radius: 50%;
+    left: 20px;
+    top: 190px;
+    animation: egg-shadow-move 1s linear infinite;
+  }
+  .easter-animation .clouds {
+    position: absolute;
+    width: 500px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .easter-animation .cloud1,
+  .easter-animation .cloud2,
+  .easter-animation .cloud3 {
+    position: absolute;
+    background-color: #ffffff;
+    width: 100px;
+    height: 25px;
+    border-radius: 100px;
+    opacity: 0.9;
+  }
+  .easter-animation .cloud1:before,
+  .easter-animation .cloud2:before,
+  .easter-animation .cloud3:before {
+    position: absolute;
+    content: "";
+    width: 40px;
+    height: 40px;
+    top: -20px;
+    left: 20px;
+    background-color: #ffffff;
+    border-radius: 50%;
+  }
+  .easter-animation .cloud1 { top: -150px; z-index: -1; animation: egg-clouds 2s linear infinite; }
+  .easter-animation .cloud2 { top: -70px; opacity: 0.5; transform: scale(0.7); animation: egg-clouds 1.8s linear infinite; }
+  .easter-animation .cloud3 { top: -100px; opacity: 0.5; transform: scale(0.9); animation: egg-clouds 1.5s linear infinite; z-index: -2; }
+
+  @keyframes egg-bounce {
+    0%   { transform: scale(1, 1) translateY(0); }
+    10%  { transform: scale(1.1, 0.9) translateY(0); }
+    30%  { transform: scale(0.9, 1.1) translateY(-70px) translateX(30px); }
+    50%  { transform: scale(1.05, 0.95) translateY(0) translateX(30px) rotate(-10deg); }
+    58%  { transform: scale(1, 1) translateY(-7px) translateX(0); }
+    65%  { transform: scale(1, 1) translateY(0); }
+    100% { transform: scale(1, 1) translateY(0); }
+  }
+  @keyframes egg-shadow-move {
+    0%   { transform: translateX(0); }
+    10%  { transform: translateX(0) scale(0.8); }
+    30%  { transform: translateX(0) scale(0.8); }
+    50%  { transform: translateX(30px) scale(0.7); }
+    58%  { transform: translateX(20px); }
+    65%  { transform: translateX(0); }
+    100% { transform: translateX(0); }
+  }
+  @keyframes egg-clouds {
+    from { left: 500px; }
+    to   { left: -500px; }
+  }
+
+  /* Smaller inline version for refresh button / restore banner */
+  .easter-animation.small { width: 40px; height: 60px; }
+  .easter-animation.small .egg { width: 40px; height: 54px; animation-duration: .8s; }
+  .easter-animation.small .egg:before { width: 60px; height: 26px; top: 44px; box-shadow: 0 -14px #ffca3a, 0 -18px #8ac926, 0 -24px #6a4c93, 0 -26px #ffca3a; }
+  .easter-animation.small .egg:after { width: 4px; height: 4px; left: 24px; top: 20px; box-shadow: -10px 0 #ffca3a, 10px 0 #ffca3a, -20px 0 #ffca3a, -30px 0 #ffca3a; }
+  .easter-animation.small .eyes { width: 5px; height: 8px; left: 24px; top: 32px; box-shadow: 5px 0 #333; }
+  .easter-animation.small .eyes:before { width: 2px; height: 3px; left: 3px; top: 2px; box-shadow: 5px 0 #fff; }
+  .easter-animation.small .eyes:after { width: 60px; height: 8px; top: -35px; left: -27px; }
+  .easter-animation.small .shadow { width: 26px; height: 5px; left: 7px; top: 52px; animation-duration: .8s; }
+  .easter-animation.small .clouds { display: none; }
+
+  /* ============================================================= */
+
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes scaleIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
-  @keyframes float { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-10px) rotate(4deg); } }
   @keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
   @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: .7; } }
   @keyframes ripple { to { transform: scale(4); opacity: 0; } }
@@ -239,8 +391,6 @@
   .form-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
   .form-row input, .form-row select { flex: 1; min-width: 120px; }
   .form-row .btn-sm { flex-shrink: 0; }
-  .field-label { font-size: 12px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: .4px; }
-  .field { margin-bottom: 12px; }
 
   table { width: 100%; border-collapse: collapse; }
   th, td { padding: 12px 8px; text-align: left; font-size: 14px; }
@@ -319,7 +469,7 @@
     text-align: center; color: var(--text-dim); padding: 36px 20px; font-size: 14px;
     animation: fadeUp .5s var(--ease-smooth) both;
   }
-  .empty::before { content: '🥚'; display: block; font-size: 48px; margin-bottom: 12px; opacity: .8; animation: float 3s ease-in-out infinite; }
+  .empty::before { content: '🥚'; display: block; font-size: 48px; margin-bottom: 12px; opacity: .8; }
 
   /* ============ LOGIN ============ */
   .login-overlay {
@@ -331,21 +481,15 @@
   }
   .login-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
   .login-card {
-    text-align: center; padding: 36px 28px; background: #fff;
+    text-align: center; padding: 28px 28px 32px; background: #fff;
     border-radius: 28px; box-shadow: var(--shadow-lg); max-width: 400px; width: 100%;
     animation: bounceIn .8s var(--ease-spring) both;
     margin: auto;
   }
-  .login-card .logo {
-    width: 76px; height: 76px; border-radius: 22px; margin: 0 auto 16px;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b, #fb923c);
-    background-size: 200% 200%;
-    animation: float 3.5s ease-in-out infinite, gradientShift 5s ease infinite;
-    display: flex; align-items: center; justify-content: center; font-size: 40px;
-    box-shadow: 0 12px 30px rgba(245,158,11,.4);
-  }
+  /* Easter egg loader used as logo */
+  .login-card .logo-loader { margin: 0 auto 8px; }
   .login-card h1 {
-    margin: 0 0 6px; font-size: 26px; font-weight: 800; letter-spacing: -.8px;
+    margin: 4px 0 6px; font-size: 26px; font-weight: 800; letter-spacing: -.8px;
     background: linear-gradient(135deg, #f59e0b, #d97706);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
@@ -370,7 +514,7 @@
   .auth-form input { margin-bottom: 10px; }
   .auth-msg {
     font-size: 12px; padding: 10px 12px; border-radius: 10px;
-    margin-bottom: 10px; font-weight: 600;
+    margin-bottom: 10px; font-weight: 600; text-align: left;
     animation: scaleIn .3s var(--ease-spring) both;
   }
   .auth-msg.error { background: var(--danger-soft); color: #991b1b; }
@@ -386,11 +530,7 @@
     content: ''; flex: 1; height: 1px; background: var(--border-soft);
   }
 
-  .g-btn-wrap {
-    display: flex; justify-content: center;
-  }
-
-  /* ============ TOASTS (TOP RIGHT) ============ */
+  /* ============ TOASTS ============ */
   .toast-container {
     position: fixed; top: calc(16px + var(--safe-top)); right: 16px;
     z-index: 400; display: flex; flex-direction: column; gap: 10px;
@@ -452,21 +592,24 @@
     transition: transform .3s var(--ease-spring);
   }
   .refresh-fab:active { transform: scale(.9); }
-  .refresh-fab.spinning { animation: spin 1s linear infinite; }
 
-  .restore-banner {
-    position: fixed; top: calc(12px + var(--safe-top)); left: 50%; transform: translateX(-50%);
-    background: #fff; padding: 8px 16px; border-radius: 100px;
-    box-shadow: var(--shadow-md); font-size: 12px; font-weight: 600;
-    color: var(--text-dim); z-index: 90;
-    display: flex; align-items: center; gap: 8px;
-    animation: fadeUp .3s var(--ease-smooth) both;
+  /* Full-screen loader overlay */
+  .fullscreen-loader {
+    position: fixed; inset: 0; z-index: 500;
+    background: linear-gradient(160deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 24px;
+    animation: fadeIn .25s var(--ease-smooth) both;
   }
-  .restore-banner .spinner {
-    width: 12px; height: 12px; border: 2px solid var(--border);
-    border-top-color: var(--primary); border-radius: 50%;
-    animation: spin .8s linear infinite;
+  .fullscreen-loader.hidden { display: none; }
+  .fullscreen-loader .loading-text {
+    font-size: 14px; font-weight: 700; color: var(--text-dim);
+    letter-spacing: .4px;
   }
+  .fullscreen-loader .loading-text span { animation: pulse 1.2s infinite; }
+  .fullscreen-loader .loading-text span:nth-child(2) { animation-delay: .2s; }
+  .fullscreen-loader .loading-text span:nth-child(3) { animation-delay: .4s; }
 
   @media (min-width: 600px) {
     body { padding-bottom: 40px; }
@@ -497,10 +640,32 @@
 </head>
 <body>
 
+<!-- ============ FULLSCREEN LOADER ============ -->
+<div class="fullscreen-loader hidden" id="fullscreenLoader">
+  <div class="easter-animation">
+    <div class="egg"><div class="eyes"></div></div>
+    <div class="shadow"></div>
+    <div class="clouds">
+      <div class="cloud1"></div>
+      <div class="cloud2"></div>
+      <div class="cloud3"></div>
+    </div>
+  </div>
+  <div class="loading-text">Loading<span>.</span><span>.</span><span>.</span></div>
+</div>
+
 <!-- ============ LOGIN ============ -->
 <div id="loginOverlay" class="login-overlay">
   <div class="login-card">
-    <div class="logo">🥚</div>
+    <div class="easter-animation logo-loader">
+      <div class="egg"><div class="eyes"></div></div>
+      <div class="shadow"></div>
+      <div class="clouds">
+        <div class="cloud1"></div>
+        <div class="cloud2"></div>
+        <div class="cloud3"></div>
+      </div>
+    </div>
     <h1>Antvarum</h1>
     <p class="subtitle">Egg tracker &amp; split manager</p>
 
@@ -511,7 +676,6 @@
 
     <div class="auth-msg hidden" id="authMsg"></div>
 
-    <!-- Email form (both sign in and sign up share structure) -->
     <div class="auth-form" id="emailForm">
       <div id="signupFields" class="hidden">
         <input type="text" id="authName" placeholder="Your name" autocomplete="name">
@@ -523,9 +687,7 @@
 
     <div class="divider">or</div>
 
-    <div class="g-btn-wrap">
-      <button id="signInBtn" class="btn-ghost btn-block">Continue with Google</button>
-    </div>
+    <button id="signInBtn" class="btn-ghost btn-block">Continue with Google</button>
   </div>
 </div>
 
@@ -553,7 +715,6 @@
     <button data-tab="reports">📈 Reports</button>
   </div>
 
-  <!-- DASHBOARD -->
   <div class="tab-panel" id="tab-dashboard">
     <div class="card">
       <div class="card-title">
@@ -564,26 +725,10 @@
         <select id="purchaseSelector" onchange="switchPurchase(this.value)"></select>
       </div>
       <div class="stat-grid">
-        <div class="stat warning">
-          <div class="stat-label">Eggs used</div>
-          <div class="stat-value" id="dashUsed">0</div>
-          <div class="stat-sub">of 30</div>
-        </div>
-        <div class="stat success">
-          <div class="stat-label">Remaining</div>
-          <div class="stat-value" id="dashLeft">30</div>
-          <div class="stat-sub">eggs left</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Per egg</div>
-          <div class="stat-value" id="dashRate">₹0</div>
-          <div class="stat-sub" id="dashPrice">Carton ₹0</div>
-        </div>
-        <div class="stat accent">
-          <div class="stat-label">Amount used</div>
-          <div class="stat-value" id="dashAmount">₹0</div>
-          <div class="stat-sub">current purchase</div>
-        </div>
+        <div class="stat warning"><div class="stat-label">Eggs used</div><div class="stat-value" id="dashUsed">0</div><div class="stat-sub">of 30</div></div>
+        <div class="stat success"><div class="stat-label">Remaining</div><div class="stat-value" id="dashLeft">30</div><div class="stat-sub">eggs left</div></div>
+        <div class="stat"><div class="stat-label">Per egg</div><div class="stat-value" id="dashRate">₹0</div><div class="stat-sub" id="dashPrice">Carton ₹0</div></div>
+        <div class="stat accent"><div class="stat-label">Amount used</div><div class="stat-value" id="dashAmount">₹0</div><div class="stat-sub">current purchase</div></div>
       </div>
       <div class="progress-wrap">
         <div class="progress-info">
@@ -610,13 +755,9 @@
     </div>
   </div>
 
-  <!-- DAILY ENTRY -->
   <div class="tab-panel hidden" id="tab-entry">
     <div class="card">
-      <div class="card-title">
-        Add Daily Entry
-        <span class="badge" id="entryPurchaseBadge">—</span>
-      </div>
+      <div class="card-title">Add Daily Entry <span class="badge" id="entryPurchaseBadge">—</span></div>
       <div class="form-row">
         <input type="date" id="entryDate">
         <button class="btn-ghost btn-sm" onclick="loadDateForEdit()">Load</button>
@@ -636,7 +777,6 @@
     </div>
   </div>
 
-  <!-- PURCHASES -->
   <div class="tab-panel hidden" id="tab-purchases">
     <div class="card">
       <div class="card-title">
@@ -663,7 +803,6 @@
     </div>
   </div>
 
-  <!-- PEOPLE -->
   <div class="tab-panel hidden" id="tab-people">
     <div class="card">
       <div class="card-title">
@@ -674,7 +813,6 @@
     </div>
   </div>
 
-  <!-- REPORTS -->
   <div class="tab-panel hidden" id="tab-reports">
     <div class="card">
       <div class="card-title">Month-wise Report</div>
@@ -691,7 +829,6 @@
   </div>
 </div>
 
-<!-- Bottom Nav -->
 <div class="bottom-nav hidden" id="bottomNav">
   <button class="nav-btn active" data-tab="dashboard"><span class="ico">📊</span><span class="lbl">Home</span></button>
   <button class="nav-btn" data-tab="entry"><span class="ico">✍️</span><span class="lbl">Entry</span></button>
@@ -705,9 +842,6 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-// ===================================================================
-// CONFIG
-// ===================================================================
 const CLIENT_ID = '1075127970047-ed7dgjkf04mqd0tu2lnokadrocfltd03.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 const FOLDER_NAME = 'EggTrackerApp';
@@ -717,50 +851,39 @@ const CARTON_SIZE = 30;
 const TOKEN_KEY = 'egg_token';
 const EXP_KEY = 'egg_token_exp';
 const EMAIL_KEY = 'egg_user_email';
-const AUTH_MODE_KEY = 'egg_auth_mode'; // 'google' | 'email'
-const USERS_KEY = 'egg_local_users'; // { email: { name, passHash, createdAt } }
-const SESSION_KEY = 'egg_local_session'; // { email, expiresAt }
+const USERS_KEY = 'egg_local_users';
+const SESSION_KEY = 'egg_local_session';
 
 let accessToken = null, tokenClient = null, isSigningIn = false;
-let authMode = 'signin'; // 'signin' | 'signup'
-let currentUser = null;  // { email, name, type: 'google' | 'email' }
-let appData = {
-  people: [],
-  purchases: [],   // all purchases: [{id, price, eggsTotal, eggsUsed, startDate, endDate?, consumption, daily, active}]
-  history: []      // legacy field kept for backward compat (auto-migrated)
-};
+let authMode = 'signin';
+let currentUser = null;
+let appData = { people: [], purchases: [], history: [] };
 
-// ===================================================================
-// INIT
-// ===================================================================
+// ============ INIT ============
 window.addEventListener('load', initApp);
 
 async function initApp() {
   document.getElementById('entryDate').value = today();
 
-  // Nav wiring
   document.querySelectorAll('.desktop-tabs button, .nav-btn').forEach(b => {
     b.onclick = () => switchTab(b.dataset.tab);
   });
   document.querySelectorAll('button').forEach(b => b.addEventListener('click', createRipple));
-
-  // Login tabs
   document.querySelectorAll('.login-tab').forEach(t => {
     t.onclick = () => switchAuthMode(t.dataset.mode);
   });
 
-  // Restore email display
   const savedEmail = localStorage.getItem(EMAIL_KEY);
   if (savedEmail) document.getElementById('userEmail').textContent = savedEmail;
 
-  // 1) Email/local session?
+  // 1) Email session?
   const localSession = getLocalSession();
   if (localSession) {
-    showRestoreBanner();
-    await delay(300);
+    showFullscreenLoader('Restoring session');
+    await delay(400);
     currentUser = { email: localSession.email, name: localSession.name, type: 'email' };
-    hideRestoreBanner();
     await enterApp();
+    hideFullscreenLoader();
     initGoogleClient();
     return;
   }
@@ -769,18 +892,19 @@ async function initApp() {
   const saved = localStorage.getItem(TOKEN_KEY);
   const exp = parseInt(localStorage.getItem(EXP_KEY) || '0');
   if (saved && exp > Date.now() + 60000) {
-    showRestoreBanner();
+    showFullscreenLoader('Restoring session');
     accessToken = saved;
     const ok = await verifyToken(accessToken);
-    hideRestoreBanner();
     if (ok) {
       currentUser = { email: savedEmail || 'Google User', type: 'google' };
       await enterApp();
+      hideFullscreenLoader();
       initGoogleClient();
       return;
     } else {
       clearGoogleToken();
     }
+    hideFullscreenLoader();
   }
 
   // 3) No session — show login
@@ -790,9 +914,16 @@ async function initApp() {
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ===================================================================
-// AUTH — email (localStorage) + google
-// ===================================================================
+function showFullscreenLoader(text = 'Loading') {
+  const el = document.getElementById('fullscreenLoader');
+  el.querySelector('.loading-text').innerHTML = text + '<span>.</span><span>.</span><span>.</span>';
+  el.classList.remove('hidden');
+}
+function hideFullscreenLoader() {
+  document.getElementById('fullscreenLoader').classList.add('hidden');
+}
+
+// ============ AUTH ============
 function switchAuthMode(mode) {
   authMode = mode;
   document.querySelectorAll('.login-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
@@ -801,7 +932,6 @@ function switchAuthMode(mode) {
   document.getElementById('authPassword').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
   hideAuthMsg();
 }
-
 function showAuthMsg(msg, type = 'error') {
   const el = document.getElementById('authMsg');
   el.textContent = msg;
@@ -811,17 +941,13 @@ function hideAuthMsg() {
   const el = document.getElementById('authMsg');
   el.className = 'auth-msg hidden';
 }
-
-// Simple hash (NOT cryptographically secure — fine for personal use)
 function simpleHash(str) {
   let h = 5381;
   for (let i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
   return String(h >>> 0);
 }
-
 function getLocalUsers() {
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); }
-  catch { return {}; }
+  try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch { return {}; }
 }
 function saveLocalUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
 
@@ -839,14 +965,12 @@ function setLocalSession(user) {
   const session = {
     email: user.email,
     name: user.name || user.email.split('@')[0],
-    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 days
+    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000
   };
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   return session;
 }
-function clearLocalSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
+function clearLocalSession() { localStorage.removeItem(SESSION_KEY); }
 
 async function submitEmailAuth() {
   hideAuthMsg();
@@ -867,27 +991,29 @@ async function submitEmailAuth() {
     if (users[email]) return showAuthMsg('An account with this email already exists. Try signing in.');
     users[email] = { name, passHash: simpleHash(pass), createdAt: Date.now() };
     saveLocalUsers(users);
-    // Auto sign in
-    const session = setLocalSession({ email, name });
+    setLocalSession({ email, name });
     currentUser = { email, name, type: 'email' };
-    toast(`Welcome, ${name}!`, 'success');
+    showFullscreenLoader('Creating account');
+    await delay(400);
     await enterApp();
+    hideFullscreenLoader();
+    toast(`Welcome, ${name}!`, 'success');
     return;
   }
 
-  // Sign in
   if (!users[email]) return showAuthMsg('No account found. Switch to Sign Up to create one.');
   if (users[email].passHash !== simpleHash(pass)) return showAuthMsg('Incorrect password.');
 
-  const session = setLocalSession({ email, name: users[email].name });
+  setLocalSession({ email, name: users[email].name });
   currentUser = { email, name: users[email].name, type: 'email' };
-  toast(`Welcome back, ${users[email].name}!`, 'success');
+  showFullscreenLoader('Signing in');
+  await delay(400);
   await enterApp();
+  hideFullscreenLoader();
+  toast(`Welcome back, ${users[email].name}!`, 'success');
 }
 
-// ===================================================================
-// GOOGLE AUTH
-// ===================================================================
+// ============ GOOGLE ============
 function initGoogleClient() {
   const wait = setInterval(() => {
     if (typeof google !== 'undefined' && google.accounts) {
@@ -902,7 +1028,10 @@ function initGoogleClient() {
             localStorage.setItem(TOKEN_KEY, accessToken);
             localStorage.setItem(EXP_KEY, expiresAt);
             currentUser = { email: 'Google User', type: 'google' };
+            showFullscreenLoader('Signing in');
+            await delay(400);
             await enterApp();
+            hideFullscreenLoader();
           }
           isSigningIn = false;
         },
@@ -918,14 +1047,12 @@ function initGoogleClient() {
     }
   }, 100);
 }
-
 function clearGoogleToken() {
   accessToken = null;
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(EXP_KEY);
   localStorage.removeItem(EMAIL_KEY);
 }
-
 async function verifyToken(token) {
   try {
     const r = await fetch('https://www.googleapis.com/drive/v3/about?fields=user', {
@@ -935,16 +1062,13 @@ async function verifyToken(token) {
   } catch { return false; }
 }
 
-// ===================================================================
-// ENTER / EXIT APP
-// ===================================================================
+// ============ APP ENTRY ============
 async function enterApp() {
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('appContent').classList.remove('hidden');
   document.getElementById('bottomNav').classList.remove('hidden');
   document.getElementById('refreshFab').classList.remove('hidden');
 
-  // Fetch email if google
   if (currentUser?.type === 'google') {
     try {
       const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -961,18 +1085,12 @@ async function enterApp() {
 
   await loadData();
 
-  // Ensure at least one purchase exists
   if (!appData.purchases || !appData.purchases.length) {
     appData.purchases = [];
     createNewPurchase({ setActive: true, silent: true });
   }
-  // Ensure exactly one active purchase
-  const activeExists = appData.purchases.some(p => p.active);
-  if (!activeExists) {
-    appData.purchases[0].active = true;
-  }
+  if (!appData.purchases.some(p => p.active)) appData.purchases[0].active = true;
 
-  // Seed people if empty
   if (appData.people.length === 0) {
     appData.people = ['David','Prakash','Naveen','Guru','Harini','Logesh','Sathish','Gunesh','Yogi','Mari'];
     await saveData();
@@ -999,9 +1117,7 @@ function signOut() {
   hideAuthMsg();
 }
 
-// ===================================================================
-// HELPERS
-// ===================================================================
+// ============ HELPERS ============
 function today() { return new Date().toISOString().slice(0,10); }
 function monthKey(d) { return (d || today()).slice(0,7); }
 function fmt(n) { return '₹' + Number(n).toFixed(2); }
@@ -1020,7 +1136,6 @@ function createRipple(e) {
   setTimeout(() => circle.remove(), 600);
 }
 
-// TOAST — top right
 function toast(msg, type = 'info', timeout = 3200) {
   const el = document.createElement('div');
   el.className = 'toast ' + type;
@@ -1097,9 +1212,7 @@ function showAddPersonModal() {
   overlay.onclick = (e) => { if (e.target === overlay) close(); };
 }
 
-// ===================================================================
-// DRIVE (Google users only — email users use localStorage as backing)
-// ===================================================================
+// ============ DRIVE ============
 async function getFolderId() {
   const q = `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
   const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`, { headers: { Authorization: `Bearer ${accessToken}` } });
@@ -1118,13 +1231,9 @@ async function getFileId(folderId) {
   const d = await r.json();
   return d.files?.length ? d.files[0].id : null;
 }
-
-function localDataKey() {
-  return 'egg_data_' + (currentUser?.email || 'anon');
-}
+function localDataKey() { return 'egg_data_' + (currentUser?.email || 'anon'); }
 
 async function loadData() {
-  // Google user → Drive
   if (currentUser?.type === 'google') {
     try {
       const folderId = await getFolderId();
@@ -1137,7 +1246,6 @@ async function loadData() {
     migrateData();
     return;
   }
-  // Email user → localStorage
   try {
     const raw = localStorage.getItem(localDataKey());
     if (raw) appData = { ...appData, ...JSON.parse(raw) };
@@ -1146,7 +1254,6 @@ async function loadData() {
 }
 
 function migrateData() {
-  // Move any legacy 'history' cartons into 'purchases'
   if (Array.isArray(appData.history) && appData.history.length) {
     if (!Array.isArray(appData.purchases)) appData.purchases = [];
     for (const h of appData.history) {
@@ -1159,7 +1266,6 @@ function migrateData() {
 }
 
 async function saveData() {
-  // Google user → Drive
   if (currentUser?.type === 'google') {
     if (!accessToken) return;
     const status = document.getElementById('syncStatus');
@@ -1184,7 +1290,6 @@ async function saveData() {
     }
     return;
   }
-  // Email user → localStorage
   try {
     localStorage.setItem(localDataKey(), JSON.stringify(appData));
     const status = document.getElementById('syncStatus');
@@ -1195,41 +1300,28 @@ async function saveData() {
   }
 }
 
-// ===================================================================
-// PURCHASES (multi-purchase model)
-// ===================================================================
+// ============ PURCHASES ============
 function getActivePurchase() {
   if (!appData.purchases) appData.purchases = [];
   return appData.purchases.find(p => p.active) || appData.purchases[0] || null;
 }
-
 function createNewPurchase({ setActive = true, silent = false, price = 195 } = {}) {
   if (setActive) appData.purchases.forEach(p => p.active = false);
   const p = {
     id: 'purchase_' + Date.now(),
-    price,
-    eggsTotal: CARTON_SIZE,
-    eggsUsed: 0,
-    startDate: today(),
-    endDate: null,
-    consumption: {},
-    daily: {},
-    active: !!setActive
+    price, eggsTotal: CARTON_SIZE, eggsUsed: 0,
+    startDate: today(), endDate: null,
+    consumption: {}, daily: {}, active: !!setActive
   };
   appData.purchases.unshift(p);
   saveData();
   if (!silent) toast('New purchase added', 'success');
   return p;
 }
-
 function startNewPurchase() {
-  if (!confirm('Start a new purchase? The current active one will be marked as closed.')) return;
+  if (!confirm('Start a new purchase? Current active will be closed.')) return;
   const active = getActivePurchase();
-  if (active && active.eggsUsed === 0) {
-    // Reuse empty purchase instead of stacking blanks
-    toast('Current purchase is empty — using it', 'info');
-    return;
-  }
+  if (active && active.eggsUsed === 0) { toast('Current purchase is empty — using it', 'info'); return; }
   if (active) {
     active.active = false;
     if (!active.endDate) active.endDate = today();
@@ -1237,21 +1329,17 @@ function startNewPurchase() {
   createNewPurchase({ setActive: true });
   render(); buildEntryForm();
 }
-
 function switchPurchase(id) {
   appData.purchases.forEach(p => p.active = (p.id === id));
-  saveData();
-  render(); buildEntryForm();
+  saveData(); render(); buildEntryForm();
   toast('Switched purchase', 'success');
 }
-
 function updatePrice() {
   const c = getActivePurchase();
   if (!c) return;
   const p = parseFloat(document.getElementById('cartonPriceInput').value);
   if (p > 0) { c.price = p; saveData(); render(); toast('Price updated', 'success'); }
 }
-
 function closePurchase() {
   const c = getActivePurchase();
   if (!c) return;
@@ -1259,17 +1347,13 @@ function closePurchase() {
   if (!confirm(`Close purchase with ${c.eggsUsed}/${CARTON_SIZE} used?`)) return;
   c.endDate = today();
   c.active = false;
-  // Create fresh active purchase
   createNewPurchase({ setActive: true, silent: true });
   celebrate();
   toast('Purchase closed 🎉', 'success');
-  render();
-  buildEntryForm();
+  render(); buildEntryForm();
 }
 
-// ===================================================================
-// DAILY ENTRY
-// ===================================================================
+// ============ ENTRY ============
 function buildEntryForm() {
   const c = getActivePurchase();
   const badge = document.getElementById('entryPurchaseBadge');
@@ -1284,7 +1368,6 @@ function buildEntryForm() {
   wrap.querySelectorAll('input').forEach(i => i.addEventListener('input', updateDailyTotals));
   updateDailyTotals();
 }
-
 function loadDateForEdit() {
   const c = getActivePurchase();
   if (!c) return;
@@ -1292,8 +1375,7 @@ function loadDateForEdit() {
   if (!date) return;
   const day = c.daily?.[date] || {};
   document.querySelectorAll('#entryList input').forEach(i => i.value = day[i.dataset.person] ?? '');
-  updateDailyTotals();
-  renderTodayList();
+  updateDailyTotals(); renderTodayList();
 }
 function clearEntryForm() {
   document.querySelectorAll('#entryList input').forEach(i => i.value = '');
@@ -1307,7 +1389,6 @@ function updateDailyTotals() {
   document.getElementById('dailyTotals').textContent =
     `This day: ${sum} eggs · Purchase: ${c.eggsUsed}/${CARTON_SIZE} · Left: ${Math.max(0, CARTON_SIZE - c.eggsUsed)}`;
 }
-
 function saveDailyEntry() {
   const c = getActivePurchase();
   if (!c) return;
@@ -1329,15 +1410,11 @@ function saveDailyEntry() {
     for (const [p, v] of Object.entries(d)) c.consumption[p] = (c.consumption[p] || 0) + v;
   }
   c.eggsUsed = Object.values(c.consumption).reduce((a,b) => a+b, 0);
-  saveData();
-  render();
-  updateDailyTotals();
+  saveData(); render(); updateDailyTotals();
   toast(`Saved ${date}: ${dayTotal} eggs`, 'success');
 }
 
-// ===================================================================
-// SPLIT & MONTHLY
-// ===================================================================
+// ============ SPLIT & MONTHLY ============
 function generateSplit(purchase) {
   const rate = purchase.price / purchase.eggsTotal;
   const lines = Object.entries(purchase.consumption).map(([name, eggs]) => ({ name, eggs, amount: eggs * rate }));
@@ -1345,7 +1422,6 @@ function generateSplit(purchase) {
   const total = lines.reduce((s,l) => s + l.amount, 0);
   return { rate, lines, total };
 }
-
 function monthlyStats() {
   const months = {};
   const addPurchase = (carton) => {
@@ -1367,9 +1443,7 @@ function monthlyStats() {
   return months;
 }
 
-// ===================================================================
-// RENDER
-// ===================================================================
+// ============ RENDER ============
 function render() {
   renderPurchaseSelector();
   renderDashboard();
@@ -1378,7 +1452,6 @@ function render() {
   renderReports();
   renderTodayList();
 }
-
 function switchTab(name) {
   document.querySelectorAll('.desktop-tabs button').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.nav-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
@@ -1393,7 +1466,6 @@ function switchTab(name) {
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 function renderPurchaseSelector() {
   const sel = document.getElementById('purchaseSelector');
   if (!sel) return;
@@ -1403,7 +1475,6 @@ function renderPurchaseSelector() {
     return `<option value="${p.id}" ${p.id === active?.id ? 'selected' : ''}>${label}</option>`;
   }).join('');
 }
-
 function renderDashboard() {
   const c = getActivePurchase();
   if (!c) return;
@@ -1443,7 +1514,6 @@ function renderDashboard() {
       </tr>`).join('')}</tbody></table>`;
   }
 }
-
 function renderTodayList() {
   const c = getActivePurchase();
   if (!c) return;
@@ -1458,7 +1528,6 @@ function renderTodayList() {
       <tr style="animation-delay:${i * 0.04}s"><td>${n}</td><td class="num">${e} eggs</td><td class="amount">${fmt(e * rate)}</td></tr>`).join('')}</tbody></table>`;
   }
 }
-
 function renderPurchasesTab() {
   const c = getActivePurchase();
   if (c) {
@@ -1476,7 +1545,6 @@ function renderPurchasesTab() {
       `;
     }
   }
-
   const list = document.getElementById('purchaseList');
   const purchases = appData.purchases || [];
   if (!purchases.length) list.innerHTML = '<div class="empty">No purchases yet</div>';
@@ -1488,9 +1556,7 @@ function renderPurchasesTab() {
       <div class="carton-card ${isActive ? 'active-purchase' : 'closed'}" style="animation-delay:${i * 0.04}s" onclick="togglePurchaseBody('${p.id}')">
         <div class="carton-head">
           <div>
-            <div class="carton-title">
-              ${isActive ? '● Active Purchase' : 'Purchase'} · ₹${p.price}
-            </div>
+            <div class="carton-title">${isActive ? '● Active Purchase' : 'Purchase'} · ₹${p.price}</div>
             <div class="carton-meta">${p.startDate}${p.endDate ? ' → ' + p.endDate : ''} · ${p.eggsUsed}/${CARTON_SIZE} eggs</div>
           </div>
           <div class="carton-amount">${fmt(total)}</div>
@@ -1508,18 +1574,15 @@ function renderPurchasesTab() {
     }).join('');
   }
 }
-
 function togglePurchaseBody(id) {
   const el = document.getElementById('purchase-body-' + id);
   if (el) el.classList.toggle('open');
 }
-
 function setActive(id) {
   appData.purchases.forEach(p => p.active = (p.id === id));
   saveData(); render(); buildEntryForm();
   toast('Purchase set as active', 'success');
 }
-
 function copySplit(id) {
   const p = (appData.purchases || []).find(x => x.id === id);
   if (!p) return;
@@ -1532,7 +1595,6 @@ function copySplit(id) {
     `\n\nTotal: ₹${total.toFixed(2)}`;
   navigator.clipboard.writeText(text).then(() => toast('Copied for GPay', 'success'));
 }
-
 function renderPeopleTab() {
   const totals = {};
   const add = (name, eggs, amount, purchaseId, month) => {
@@ -1565,7 +1627,6 @@ function renderPeopleTab() {
       </div>
     </div>`).join('');
 }
-
 function renderReports() {
   const months = monthlyStats();
   const sel = document.getElementById('reportMonth');
@@ -1579,7 +1640,6 @@ function renderReports() {
   if (!key || !months[key]) { el.innerHTML = '<div class="empty">No data</div>'; }
   else {
     const m = months[key];
-    // Use each purchase's own rate for accuracy
     const byPersonAmount = {};
     for (const p of (appData.purchases || [])) {
       const r = p.price / p.eggsTotal;
@@ -1602,8 +1662,6 @@ function renderReports() {
         ${lines.map(([n, e], i) => `<tr style="animation-delay:${i * 0.03}s"><td>${n}</td><td class="num">${e}</td><td class="amount">${fmt(byPersonAmount[n] || 0)}</td></tr>`).join('')}
       </tbody></table>`;
   }
-
-  // All-time
   const allTime = {};
   for (const p of (appData.purchases || [])) {
     const r = p.price / p.eggsTotal;
@@ -1621,27 +1679,13 @@ function renderReports() {
     </tr>
   `).join('')}</tbody></table>`;
 }
-
 async function manualRefresh() {
   const fab = document.getElementById('refreshFab');
-  fab.classList.add('spinning');
-  await loadData();
-  render();
-  buildEntryForm();
-  fab.classList.remove('spinning');
+  fab.textContent = '';
+  fab.innerHTML = `<div class="easter-animation small"><div class="egg"><div class="eyes"></div></div><div class="shadow"></div></div>`;
+  await loadData(); render(); buildEntryForm();
+  setTimeout(() => { fab.innerHTML = '🔄'; }, 600);
   toast('Refreshed', 'success');
-}
-
-function showRestoreBanner() {
-  const b = document.createElement('div');
-  b.className = 'restore-banner';
-  b.id = 'restoreBanner';
-  b.innerHTML = '<div class="spinner"></div><span>Restoring session…</span>';
-  document.body.appendChild(b);
-}
-function hideRestoreBanner() {
-  const b = document.getElementById('restoreBanner');
-  if (b) b.remove();
 }
 </script>
 </body>
